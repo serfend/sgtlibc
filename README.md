@@ -113,6 +113,20 @@ str_bin_sh                      0x194882
 {'system': 284768, 'str_bin_sh': 1656962}
 ```
 
+- use in `pwntools`
+
+```python
+from pwn import * # should run pip install pwntools before
+import sgtlibc
+s = libc.Searcher()
+puts_addr = 0xff1234567aa0 # from leak data
+s.add_condition('puts',puts_addr)
+libc = s.dump() # search libc , if returns multi-result ,default use index-0's result
+offset = puts_addr - libc[sgtlibc.s_puts]  # puts_write
+system_addr = p64(libc[sgtlibc.s_system] + offset)
+binsh_addr = p64(libc[sgtlibc.s_binsh] + offset)
+```
+
 
 
 
