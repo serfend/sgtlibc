@@ -2,3 +2,4 @@ include requirements.txt
 include sgtlibcsearcher/libc-database/*
 include sgtlibcsearcher/libc-database/db/*
 include sgtlibcsearcher/libc-database/common/*
+exclude sgtlibcsearcher/libc-database/db/*.so

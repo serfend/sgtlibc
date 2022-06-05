@@ -5,7 +5,7 @@ import shutil
 import sys
 
 from setuptools import setup, find_packages
-pck_name = 'sgtlibcsearcher'
+pck_name = 'sgtlibc'
 pck_dict = {}
 pck_dict[pck_name] = pck_name
 package_dir = os.path.dirname(os.path.realpath(__file__))

@@ -7,7 +7,7 @@ from logger import logger
 def run():
     logger.debug('program start')
     parser = argparse.ArgumentParser(description=__version__.__description__)
-    usage = 'puts:aa0+read:140 , its means func-put\'s address = 0xaa0;func-read addr = 0x140'
+    usage = 'puts:aa0+read:140 , its means func-puts address = 0xaa0;func-read address = 0x140'
     parser.add_argument(
         'funcs_with_addresses',
         nargs=argparse.OPTIONAL,
