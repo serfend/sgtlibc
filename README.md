@@ -88,30 +88,11 @@ print(s.dump(['system','str_bin_sh']))
 
 - run [python code above](/#/Quick Start) , you'll get output-result like following shows:
 
-```shell
-2022-06-05 14:14:19,421 [*] debug start
-2022-06-05 14:14:19,881 [+] db found:
-  1: debian-glibc (libc6-amd64_2.33-7_i386)
-  2: debian-glibc (libc6_2.33-7_amd64)
-2022-06-05 14:14:19,882 [*] dumping db[0]:debian-glibc (libc6-amd64_2.33-7_i386)
-2022-06-05 14:14:19,884 [+] function(s) in libc libc6-amd64_2.33-7_i386.symbols:
-Function Name                   Address In Libc
---------------------            ----------
-dup2                            0xead70
-read                            0xea550
-system                          0x45860
-write                           0xea5f0
-__libc_start_main_ret           0x237fd
-str_bin_sh                      0x194882
-{'dup2': 961904, 'read': 959824, 'system': 284768, 'write': 959984, '__libc_start_main_ret': 145405, 'str_bin_sh': 1656962}
-2022-06-05 14:14:19,885 [*] dumping db[0]:debian-glibc (libc6-amd64_2.33-7_i386)
-2022-06-05 14:14:19,886 [+] function(s) in libc libc6-amd64_2.33-7_i386.symbols:
-Function Name                   Address In Libc
---------------------            ----------
-system                          0x45860
-str_bin_sh                      0x194882
-{'system': 284768, 'str_bin_sh': 1656962}
-```
+![image-20220605212842313](https://raw.githubusercontent.com/serfend/res.image.reference/main/image-20220605212842313.png)
+
+- run command in terminal , you'll get output-result like following shows:
+
+  ![image-20220605213023151](https://raw.githubusercontent.com/serfend/res.image.reference/main/image-20220605213023151.png)
 
 - use in `pwntools`
 
