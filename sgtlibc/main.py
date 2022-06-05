@@ -4,10 +4,18 @@ import argparse
 from .logger import logger
 
 
-def run():
-    logger.debug('program start')
+def update_database():
+    from libc_database import update
+    logger.debug('updating database use libc-database wheel')
+    return update()
+
+
+usage = 'puts:aa0+read:140 , its means func-puts address = 0xaa0;func-read address = 0x140'
+
+
+def build_parser():
     parser = argparse.ArgumentParser(description=__version__.__description__)
-    usage = 'puts:aa0+read:140 , its means func-puts address = 0xaa0;func-read address = 0x140'
+    global usage
     parser.add_argument(
         'funcs_with_addresses',
         nargs=argparse.OPTIONAL,
@@ -40,12 +48,17 @@ def run():
         dest='update',
         help='update current libc database from internet , need non-microsoft-windows environment  (default: %(default)s).',
     )
-    searcher = LibcSearcher()
     args = parser.parse_args()
+    return args
+
+
+def run():
+    global usage
+    logger.debug('program start')
+    searcher = LibcSearcher()
+    args = build_parser()
     if args.update or args.update == None:
-        from libc_database import update
-        logger.debug('updating database use libc-database wheel')
-        return update()
+        return update_database()
     funcs_with_addresses = args.funcs_with_addresses
     dump = args.dump
     index = args.index
@@ -68,9 +81,10 @@ def run():
             func = items[0]
             searcher.add_condition(func, addr)
             logger.debug(f'function:{func},address:{hex(addr)}')
-        searcher.dump(dump, index)
     else:
         logger.error(f'no func-addr pair is specify , please do as:{usage}')
+        return
+    searcher.dump(dump, index)
 
 
 if __name__ == '__main__':

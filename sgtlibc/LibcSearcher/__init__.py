@@ -98,7 +98,11 @@ class LibcSearcher(object):
                     "__libc_start_main_ret", "system", "dup2", "read", "write",
                     "str_bin_sh"
                 ]
-            result = {}
+            result_header = {
+                'Function Name': 'Address In Libc',
+                '-'*20: '-'*10
+            }
+            result = dict(result_header)
             for ff in func:
                 for d in data:
                     desc = d.split(' ')
@@ -106,8 +110,15 @@ class LibcSearcher(object):
                     addr = desc[1]
                     if ff == f:
                         result[ff] = int(addr, 16)
-            output = [f'{x} {hex(result[x])}' for x in result]
-            logger.info('\n'.join(output))
+
+            def left_just(x: str):
+                return x.ljust(30, ' ')
+            output = [
+                f'{left_just(x)}\t{hex(result[x]) if isinstance(result[x],int) else result[x]}' for x in result]
+            output = '\n'.join(output)
+            logger.info(f'function(s) in libc {db_name}:\n{output}')
+            for i in result_header:
+                del result[i]
             return result
 
 
