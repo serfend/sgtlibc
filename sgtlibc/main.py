@@ -48,17 +48,27 @@ def build_parser():
         dest='update',
         help='update current libc database from internet , need non-microsoft-windows environment  (default: %(default)s).',
     )
+    parser.add_argument(
+        '-v',
+        '--version',
+        default=False,
+        nargs=argparse.OPTIONAL,
+        dest='version',
+        help='show version (default: %(default)s).',
+    )
     args = parser.parse_args()
     return args
 
 
 def run():
     global usage
-    logger.debug('program start')
     searcher = LibcSearcher()
     args = build_parser()
     if args.update or args.update == None:
         return update_database()
+    if args.version or args.version == None:
+        logger.info(__version__.__version__)
+        return
     funcs_with_addresses = args.funcs_with_addresses
     dump = args.dump
     index = args.index

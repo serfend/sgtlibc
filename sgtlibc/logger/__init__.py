@@ -45,4 +45,3 @@ logger.addHandler(handler)           # 为logger添加handler。
 
 
 logger.setLevel(logging.DEBUG)
-logger.debug('debug start')
