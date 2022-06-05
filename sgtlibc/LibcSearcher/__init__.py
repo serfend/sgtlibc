@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 from __future__ import print_function
-from ..logger import logger
+from .. import logger
 import os
 import re
 import sys
 from typing import List
+logger = logger.logger
 
 
 class LibcSearcher(object):
@@ -36,7 +37,9 @@ class LibcSearcher(object):
         res = []
         for name, address in self.condition.items():
             addr_last12 = address & 0xfff
-            res.append(re.compile("^%s .*%x" % (name, addr_last12)))
+            # content = f"{addr_last12:x}"
+            content = f"[\s\S]*?{name}\s.*{addr_last12:x}[\s\S]*?"
+            res.append(re.compile(content))
 
         db = self.libc_database_path
         files = []
@@ -47,12 +50,15 @@ class LibcSearcher(object):
 
         result = []
         for symbol_file in files:
-            fd = open(f'{db}{os.sep}{symbol_file}', "rb")
-            data = fd.read().decode(errors='ignore').split("\n")
-            for x in res:
-                if any(map(lambda line: x.match(line), data)):
+            with open(f'{db}{os.sep}{symbol_file}', "rb") as fd:
+                data = fd.read().decode(errors='ignore')
+                fitted_libc = True
+                for x in res:
+                    if not x.match(data):
+                        fitted_libc = False
+                        break
+                if fitted_libc:
                     result.append(symbol_file)
-            fd.close()
         self.db = result
         return self.list_db()
 
@@ -79,7 +85,8 @@ class LibcSearcher(object):
 
     # Wrapper for libc-database's dump shell script.
     def dump(self, func: List = None, db_index: int = 0):
-
+        if not isinstance(db_index, int):
+            db_index = int(db_index)
         if not self.db:
             if not self.decided():
                 return False
@@ -103,13 +110,13 @@ class LibcSearcher(object):
                 '-'*20: '-'*10
             }
             result = dict(result_header)
-            for ff in func:
-                for d in data:
-                    desc = d.split(' ')
-                    f = desc[0]
-                    addr = desc[1]
-                    if ff == f:
-                        result[ff] = int(addr, 16)
+
+            for d in data:
+                desc = d.split(' ')
+                f = desc[0]
+                addr = desc[1]
+                if f in func:
+                    result[f] = int(addr, 16)
 
             def left_just(x: str):
                 return x.ljust(30, ' ')
