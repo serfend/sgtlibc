@@ -5,7 +5,7 @@ from .logger import logger
 
 
 def update_database():
-    from libc_database import update
+    from .libc_database import update
     logger.debug('updating database use libc-database wheel')
     return update()
 
