@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
+from functools import singledispatchmethod
 from .. import logger
 import os
 import re
@@ -28,12 +29,15 @@ class LibcSearcher(object):
         self.condition_reg = {}
         # is_found,db_description,db_count
         self.__db_result = [False, None, None]
+        self.dump_result = {}
+        self.offset = None
         if func is not None and address is not None:
             self.add_condition(func, address)
         self.libc_database_path = os.path.join(
             os.path.realpath(os.path.dirname(__file__)), os.pardir, f"libc-database{os.sep}db{os.sep}")
         self.libc_database_path = os.path.realpath(self.libc_database_path)
         self.db = ""
+        self.current_focus_db = 0
         self.init_db()
 
     def init_db(self):
@@ -145,7 +149,13 @@ class LibcSearcher(object):
         return f'{info} ({result})'
 
     # Wrapper for libc-database's dump shell script.
-    def dump(self, func: List = None, db_index: int = 0):
+    def dump(self, func: List = None, db_index: int = -1):
+        if db_index < 0:
+            db_index = self.current_focus_db
+        elif self.current_focus_db != db_index:
+            self.current_focus_db = db_index
+            self.dump_result = {}  # reset if db modified
+
         if not isinstance(db_index, int):
             db_index = int(db_index)
         if not self.db:
@@ -164,23 +174,55 @@ class LibcSearcher(object):
             data = fd.read().decode(errors='ignore').strip("\n").split("\n")
             if not func:
                 from . import commons
+                self.dump_result = {}  # reset if user pass none funcs
                 func = [commons.__dict__[x]
                         for x in commons.__dict__ if x.startswith('SYMBOL_')]
 
-            result = {}
             for d in data:
                 desc = d.split(' ')
                 f = desc[0]
                 addr = desc[1]
                 if f in func:
-                    result[f] = int(addr, 16)
+                    self.dump_result[f] = int(addr, 16)
             result_header = {
                 'Function Name': 'Address In Libc',
                 '-'*20: '-'*10
             }
-            output = dict2sheet(result_header, result)
+            output = dict2sheet(result_header, self.dump_result)
             logger.info(f'function(s) in libc {db_name}:\n{output}')
-            return result
+            return self.dump_result
+
+    @singledispatchmethod
+    def set_offset(self):
+        return None
+
+    @set_offset.register
+    def _(self, target_function: str, elf_address: int):
+        if not self.check_dumped_function(target_function):
+            return
+        self.offset = self.dump_result[target_function] - elf_address
+
+    @set_offset.register
+    def _(self, offset: int):
+        self.offset = offset
+
+    def check_dumped_function(self, target_function: str) -> bool:
+        if not target_function in self.dump_result:
+            r = self.dump([target_function], self.current_focus_db)
+            if not target_function in r:
+                logger.warning(
+                    f'target function [{target_function}] not found')
+                return False
+        return True
+
+    def get_address(self, target_function: str) -> int:
+        if not self.check_dumped_function(target_function):
+            return False
+        if self.offset == None:
+            logger.warning(
+                'offset haven\'t been set,please use `set_offset` before get_address')
+            return False
+        return self.offset + self.dump_result[target_function]
 
 
 if __name__ == "__main__":
