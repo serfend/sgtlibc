@@ -6,6 +6,7 @@ import sys
 
 from setuptools import setup, find_packages
 pck_name = 'sgtlibc'
+pck_dir_name = 'sgtlibcsearcher'
 pck_dict = {}
 pck_dict[pck_name] = pck_name
 package_dir = os.path.dirname(os.path.realpath(__file__))
@@ -20,7 +21,7 @@ def remove_dist(target: str):
 
 def load_about():
     about = {}
-    pck_dir = os.path.join(package_dir, pck_name)
+    pck_dir = os.path.join(package_dir, pck_dir_name)
     with open(os.path.join(pck_dir, '__version__.py'), 'r', encoding='utf-8') as f:
         exec(f.read(), about)
     return about
@@ -99,5 +100,5 @@ def upload():
     p = os.system(' '.join(arr))
 
 
-if any([x.find('dist') > -1 for x in sys.argv]):
-    upload()
+# if any([x.find('dist') > -1 for x in sys.argv]):
+#     upload()
