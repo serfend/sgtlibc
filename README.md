@@ -18,7 +18,7 @@
 
 # What?
 
-[sgtlibc](github.com/serfend/sgtlibc) is a a offline python-lib for search libc function.
+[sgtlibc](https://github.com/serfend/sgtlibc) is a a offline python-lib for search libc function.
 
 
 
