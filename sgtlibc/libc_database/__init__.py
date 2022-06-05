@@ -1,5 +1,5 @@
 import os
-from ..logger import logger
+from .. import logger
 
 
 def install():

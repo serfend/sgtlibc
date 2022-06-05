@@ -5,7 +5,6 @@ import os
 import re
 import sys
 from typing import List
-logger = logger.logger
 
 
 class LibcSearcher(object):

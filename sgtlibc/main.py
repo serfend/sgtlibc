@@ -1,7 +1,6 @@
 from .LibcSearcher import LibcSearcher
-from . import __version__
+from . import __version__, logger
 import argparse
-from .logger import logger
 
 
 def update_database():
