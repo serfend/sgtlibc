@@ -64,8 +64,8 @@ sgtlibc puts:aa0+read:140 --dump system binsh
 
 ```python
 import sgtlibc
-s = sgtlibc.LibcSearcher()
-s.add_condition('puts',0xaa0)
+s = sgtlibc.Searcher()
+s.add_condition('puts', 0xaa0)
 s.add_condition('read',0x140)
 print(s.dump())
 print(s.dump(['system','str_bin_sh']))
