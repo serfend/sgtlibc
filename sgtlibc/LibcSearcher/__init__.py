@@ -34,26 +34,30 @@ class LibcSearcher(object):
                 "No leaked info provided.\nPlease supply more info using add_condition(leaked_func, leaked_address).")
             sys.exit(0)
 
-        res = []
+        conditions = []
         for name, address in self.condition.items():
             addr_last12 = address & 0xfff
             # content = f"{addr_last12:x}"
             content = f"[\s\S]*?{name}\s.*{addr_last12:x}[\s\S]*?"
-            res.append(re.compile(content))
+            conditions.append(re.compile(content))
 
         db = self.libc_database_path
         files = []
         # only read "*.symbols" file to find
+        symbol_re = re.compile('^.*symbols$')
         for _, _, f in os.walk(db):
             for i in f:
-                files += re.findall('^.*symbols$', i)
-
+                i = symbol_re.findall(i)
+                if i:
+                    files.append(i[0])
+        logger.debug(
+            f'finding matchable libc in {len(files)} files , with {len(conditions)} condition(s)')
         result = []
         for symbol_file in files:
             with open(f'{db}{os.sep}{symbol_file}', "rb") as fd:
                 data = fd.read().decode(errors='ignore')
                 fitted_libc = True
-                for x in res:
+                for x in conditions:
                     if not x.match(data):
                         fitted_libc = False
                         break
@@ -102,7 +106,8 @@ class LibcSearcher(object):
             data = fd.read().decode(errors='ignore').strip("\n").split("\n")
             if not func:
                 from . import commons
-                func = [commons.__dict__[x] for x in commons.__dict__ if x.startswith('SYMBOL_')]
+                func = [commons.__dict__[x]
+                        for x in commons.__dict__ if x.startswith('SYMBOL_')]
             result_header = {
                 'Function Name': 'Address In Libc',
                 '-'*20: '-'*10
