@@ -4,12 +4,28 @@ from .. import logger
 import os
 import re
 import sys
-from typing import List, Tuple
+from typing import Callable, List, Tuple
+
+
+def dict2sheet(header: dict, data: dict, formatter: Callable = None):
+    result = dict(header)
+    result.update(data)
+
+    def left_just(x: str):
+        return x.ljust(30, ' ')
+    if not formatter:
+        def formatter(
+            x, dic): return f'{left_just(x)}\t{hex(dic[x]) if isinstance(dic[x],int) else dic[x]}'
+    output = [formatter(x, result) for x in result]
+    output = '\n'.join(output)
+    return output
 
 
 class LibcSearcher(object):
     def __init__(self, func=None, address=None):
-        self.condition = {}
+        self.files = []
+        self.conditions = {}
+        self.condition_reg = {}
         # is_found,db_description,db_count
         self.__db_result = [False, None, None]
         if func is not None and address is not None:
@@ -18,6 +34,18 @@ class LibcSearcher(object):
             os.path.realpath(os.path.dirname(__file__)), os.pardir, f"libc-database{os.sep}db{os.sep}")
         self.libc_database_path = os.path.realpath(self.libc_database_path)
         self.db = ""
+        self.init_db()
+
+    def init_db(self):
+        db = self.libc_database_path
+        self.files = []
+        # only read "*.symbols" file to find
+        symbol_re = re.compile('^.*symbols$')
+        for _, _, f in os.walk(db):
+            for i in f:
+                i = symbol_re.findall(i)
+                if i:
+                    self.files.append(i[0])
 
     @property
     def db_result(self):
@@ -28,54 +56,55 @@ class LibcSearcher(object):
 
     def add_condition(self, func, address):
         if not isinstance(func, str):
-            print("The function should be a string")
+            logger.error("The function should be a string")
             sys.exit()
         if not isinstance(address, int):
-            print("The address should be an int number")
+            logger.error("The address should be an int number")
             sys.exit()
-        self.condition[func] = address
+        addr_last12 = address & 0xfff
+        content = f"[\s\S]*?{func}\s.*{addr_last12:x}[\s\S]*?"
+        re_compile = re.compile(content)
+        self.conditions[func] = address
+        self.condition_reg[func] = re_compile
 
     def decided(self) -> Tuple:
         '''
         matching libc-database with condition(s)
         return is_found,db_description,db_count
         '''
-        if len(self.condition) == 0:
+        if len(self.conditions) == 0:
             logger.error(
                 "No leaked info provided.\nPlease supply more info using add_condition(leaked_func, leaked_address).")
             sys.exit(0)
 
-        conditions = []
-        for name, address in self.condition.items():
-            addr_last12 = address & 0xfff
-            # content = f"{addr_last12:x}"
-            content = f"[\s\S]*?{name}\s.*{addr_last12:x}[\s\S]*?"
-            conditions.append(re.compile(content))
+        self.list_conditions()
+        self.search_db()
+        return self.list_db()
 
-        db = self.libc_database_path
-        files = []
-        # only read "*.symbols" file to find
-        symbol_re = re.compile('^.*symbols$')
-        for _, _, f in os.walk(db):
-            for i in f:
-                i = symbol_re.findall(i)
-                if i:
-                    files.append(i[0])
-        logger.debug(
-            f'finding matchable libc in {len(files)} files , with {len(conditions)} condition(s)')
+    def list_conditions(self):
+        result_header = {
+            'Condition Function': 'Address In ELF',
+            '-'*20: '-'*10
+        }
+        content = dict2sheet(result_header, self.conditions)
+        a = f'finding matchable libc in {len(self.files)} files'
+        b = f'with {len(self.conditions)} condition(s)'
+        logger.debug(f'{a} , {b}\n{content}')
+        return self.conditions
+
+    def search_db(self):
         result = []
-        for symbol_file in files:
-            with open(f'{db}{os.sep}{symbol_file}', "rb") as fd:
+        for symbol_file in self.files:
+            with open(f'{self.libc_database_path}{os.sep}{symbol_file}', "rb") as fd:
                 data = fd.read().decode(errors='ignore')
                 fitted_libc = True
-                for x in conditions:
-                    if not x.match(data):
+                for x in self.condition_reg:
+                    if not self.condition_reg[x].match(data):
                         fitted_libc = False
                         break
                 if fitted_libc:
                     result.append(symbol_file)
         self.db = result
-        return self.list_db()
 
     def list_db(self):
         '''
@@ -137,27 +166,20 @@ class LibcSearcher(object):
                 from . import commons
                 func = [commons.__dict__[x]
                         for x in commons.__dict__ if x.startswith('SYMBOL_')]
-            result_header = {
-                'Function Name': 'Address In Libc',
-                '-'*20: '-'*10
-            }
-            result = dict(result_header)
 
+            result = {}
             for d in data:
                 desc = d.split(' ')
                 f = desc[0]
                 addr = desc[1]
                 if f in func:
                     result[f] = int(addr, 16)
-
-            def left_just(x: str):
-                return x.ljust(30, ' ')
-            output = [
-                f'{left_just(x)}\t{hex(result[x]) if isinstance(result[x],int) else result[x]}' for x in result]
-            output = '\n'.join(output)
+            result_header = {
+                'Function Name': 'Address In Libc',
+                '-'*20: '-'*10
+            }
+            output = dict2sheet(result_header, result)
             logger.info(f'function(s) in libc {db_name}:\n{output}')
-            for i in result_header:
-                del result[i]
             return result
 
 
