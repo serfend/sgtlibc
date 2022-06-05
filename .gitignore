@@ -1,5 +1,4 @@
 sgtlibcsearcher/libc-database/db/*.so
-sgtlibcsearcher/libc-database/db/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
