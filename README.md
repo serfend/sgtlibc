@@ -86,7 +86,7 @@ print(s.dump(['system','str_bin_sh']))
 
 
 
-- run [python code above](#/Quick Start) , you'll get output-result like following shows:
+- run [python code above](/#/Quick Start) , you'll get output-result like following shows:
 
 ```shell
 2022-06-05 14:14:19,421 [*] debug start
