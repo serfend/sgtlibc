@@ -31,8 +31,8 @@ logger.addHandler(handler)           # 为logger添加handler。
 fmt = '%(asctime)s [%(levelname)s] %(message)s'  # 定义日志格式
 from colorlog.escape_codes import escape_codes_foreground
 colors = {
-    '*': 'green',
-    '+': 'light_blue',
+    '*': 'light_blue',
+    '+': 'green',
     '!': 'yellow',
     '-': 'red',
     '!!': 'purple,bg_white',
