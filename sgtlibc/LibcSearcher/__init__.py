@@ -101,10 +101,8 @@ class LibcSearcher(object):
         with open(db, 'rb') as fd:
             data = fd.read().decode(errors='ignore').strip("\n").split("\n")
             if not func:
-                func = [
-                    "__libc_start_main_ret", "system", "dup2", "read", "write",
-                    "str_bin_sh"
-                ]
+                from . import commons
+                func = [commons.__dict__[x] for x in commons.__dict__ if x.startswith('SYMBOL_')]
             result_header = {
                 'Function Name': 'Address In Libc',
                 '-'*20: '-'*10
