@@ -4,18 +4,27 @@ from .. import logger
 import os
 import re
 import sys
-from typing import List
+from typing import List, Tuple
 
 
 class LibcSearcher(object):
     def __init__(self, func=None, address=None):
         self.condition = {}
+        # is_found,db_description,db_count
+        self.__db_result = [False, None, None]
         if func is not None and address is not None:
             self.add_condition(func, address)
         self.libc_database_path = os.path.join(
             os.path.realpath(os.path.dirname(__file__)), os.pardir, f"libc-database{os.sep}db{os.sep}")
         self.libc_database_path = os.path.realpath(self.libc_database_path)
         self.db = ""
+
+    @property
+    def db_result(self):
+        '''
+        Tuple[is_found,db_description,db_count]
+        '''
+        return self.__db_result
 
     def add_condition(self, func, address):
         if not isinstance(func, str):
@@ -26,8 +35,11 @@ class LibcSearcher(object):
             sys.exit()
         self.condition[func] = address
 
-    # Wrapper for libc-database's find shell script.
-    def decided(self):
+    def decided(self) -> Tuple:
+        '''
+        matching libc-database with condition(s)
+        return is_found,db_description,db_count
+        '''
         if len(self.condition) == 0:
             logger.error(
                 "No leaked info provided.\nPlease supply more info using add_condition(leaked_func, leaked_address).")
@@ -66,15 +78,32 @@ class LibcSearcher(object):
         return self.list_db()
 
     def list_db(self):
+        '''
+        return is_found,db_description,db_count
+        '''
         result = self.db
         count = len(result)
         if count == 0:
             logger.error("No matched libc, please add more libc or try others")
-            return False
-        result = [f"{x+1:3d}: {self.pmore(result[x])}" for x in range(count)]
+            return False, None, 0
+        max_show_count = 6  # TODO support custome
+        min_hide_count = 4  # TODO support custome
+        skip_convert = None
+        if count > max_show_count + min_hide_count:
+            skip_convert = count - max_show_count
+            half = int(max_show_count/2)
+            result = result[0:half] + [None] + result[-half:]
+
+        if skip_convert:
+            result = [
+                f"{x+1 if x<half else x:3d}: {self.pmore(result[x]) if result[x] else None}" for x in range(len(result))]
+            result[half] = f'     ...other {skip_convert} results...'
+        else:
+            result = [
+                f"{x+1:3d}: {self.pmore(result[x])}" for x in range(len(result))]
         result = "\n".join(result)
-        logger.info(f'db found:\n{result}')
-        return True
+        logger.info(f'{count} db(s) is found:\n{result}')
+        return True, result, count
 
     def pmore(self, result):
         result = result[:-8]  # .strip(".symbols")
@@ -91,7 +120,8 @@ class LibcSearcher(object):
         if not isinstance(db_index, int):
             db_index = int(db_index)
         if not self.db:
-            if not self.decided():
+            self.__db_result = self.decided()
+            if not self.__db_result[0]:
                 return False
         if len(self.db) < db_index + 1:
             logger.error(
