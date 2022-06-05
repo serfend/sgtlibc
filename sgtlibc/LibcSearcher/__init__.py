@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
-from logger import logger
+from ..logger import logger
 import os
 import re
 import sys

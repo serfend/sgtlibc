@@ -1,7 +1,7 @@
-from LibcSearcher import LibcSearcher
-import __version__
+from .LibcSearcher import LibcSearcher
+from . import __version__
 import argparse
-from logger import logger
+from .logger import logger
 
 
 def run():
