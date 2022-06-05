@@ -20,4 +20,4 @@ def update():
         return logger.error('update database should run on non-microsoft-windows system , like ubuntu etc.')
     install()
     logger.info('start downloading')
-    os.system('./libc-database/get all')
+    os.system('./libc-database/get ubuntu debian centos kali arch alpine parrotsec launchpad')
