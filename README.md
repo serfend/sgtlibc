@@ -56,11 +56,15 @@ options:
 
 ## Quick Start
 
+- in cmd.exe` or `/bin/sh`
+
 ```shell
 sgtlibc puts:aa0
 sgtlibc puts:aa0+read:140
 sgtlibc puts:aa0+read:140 --dump system binsh
 ```
+
+- in `python3`
 
 ```python
 import sgtlibc
