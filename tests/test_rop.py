@@ -5,10 +5,8 @@ from .common import get_elf_resources
 
 
 @pytest.mark.skipif(platform.uname()[0] == 'Windows', reason='skip windows')
-@pytest.mark.skipif(platform.uname()[0] == 'Mac', reason='skip mac')
+@pytest.mark.skipif(platform.uname()[0] == 'Darwin', reason='skip mac')
 def test_rop_get():
-    print('current uname')
-    print(platform.uname())
     path = get_elf_resources('pwn1')
     elf = sgtlibc.ROPgadgets.ELF(path)
     data = elf.get_rop()

