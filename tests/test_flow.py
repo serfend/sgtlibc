@@ -17,6 +17,6 @@ def test_dump_normal():
 def test_dump_normal_with_reference():
     r = ['system', 'str_bin_sh']
     result = start_dump_normal(r)
-    assert len(list(result)) == 2, 'result should be same'
+    assert len(list(result)) >= 2, 'result should be same or more than input'
     for i in r:
         assert i in result, f'result should have function:{i}'
