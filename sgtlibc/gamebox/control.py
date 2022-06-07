@@ -1,4 +1,20 @@
 from .client import check_client
+import pwn
+
+
+def interactive(prompt: str = pwn.term.text.bold_red('$') + ' '):
+    """
+    interactive(prompt = pwnlib.term.text.bold_red('$') + ' ')
+
+    Does simultaneous reading and writing to the tube. In principle this just
+    connects the tube to standard in and standard out, but in practice this
+    is much more usable, since we are using :mod:`pwnlib.term` to print a
+    floating prompt.
+
+    Thus it only works in while in :data:`pwnlib.term.term_mode`.
+    """
+    c = check_client()
+    return c.interactive(prompt)
 
 
 def se(data: bytes):
