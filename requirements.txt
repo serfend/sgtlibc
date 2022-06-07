@@ -1,2 +1,3 @@
 sgtpyutils
 colorlog
+pwntools
