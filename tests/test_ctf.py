@@ -4,9 +4,15 @@ import sgtlibc.gamebox as gb
 import sgtlibc.ROPgadgets
 import os
 from .common import get_elf_resources
+import pytest
+import platform
 
-
+@pytest.mark.skipif(platform.uname()[0] == 'Windows', reason='skip windows')
+@pytest.mark.skipif(platform.uname()[0] == 'Mac', reason='skip mac')
 def test_pwn1():
+    print('current uname')
+    print(platform.uname())
+    
     path = get_elf_resources('pwn1')
     config = gb.GameBoxConfig(
         is_local=True,
