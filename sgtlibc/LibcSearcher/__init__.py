@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 from __future__ import print_function
-from functools import singledispatchmethod
 from .. import logger
 import os
 import re
@@ -190,20 +189,32 @@ class LibcSearcher(object):
             }
             output = dict2sheet(result_header, self.dump_result)
             logger.info(f'function(s) in libc {db_name}:\n{output}')
+
+            self.sync_offset()
             return self.dump_result
 
-    @singledispatchmethod
-    def set_offset(self):
-        return None
+    def sync_offset(self):
+        '''
+        sync offset from dump-result
+        '''
+        if not self.dump_result:
+            return logger.error('should dump a result first')
+        if not self.conditions:
+            return logger.error('invalid dump.no any condition is specify')
+        user_leak = [x for x in self.conditions][0]
+        self.set_offset_by_function(user_leak, self.conditions[user_leak])
 
-    @set_offset.register
-    def _(self, target_function: str, elf_address: int):
+    def set_offset_by_function(self, target_function: str, elf_address: int):
+        logger.debug(
+            f'set offset by function:{target_function},address:{hex(elf_address)}')
         if not self.check_dumped_function(target_function):
             return
-        self.offset = self.dump_result[target_function] - elf_address
+        if elf_address == self.dump_result[target_function]:
+            return logger.warning(f'elf_address is equal to dump_result,check if you pass a wrong value({hex(elf_address)})')
+        return self.set_offset_direct(elf_address - self.dump_result[target_function])
 
-    @set_offset.register
-    def _(self, offset: int):
+    def set_offset_direct(self, offset: int):
+        logger.debug(f'set_offset: is set to:{hex(offset)}')
         self.offset = offset
 
     def check_dumped_function(self, target_function: str) -> bool:
