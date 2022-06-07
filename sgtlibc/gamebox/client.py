@@ -25,7 +25,8 @@ def set_config(config: GameBoxConfig = None):
     tube_remote = config.tube_remote
     global is_local
     is_local = config.is_local
-
+    global client
+    client = None
     pwn.context.log_level = config.log_level
     pwn.context.os = config.os
     pwn.context.arch = config.arch
