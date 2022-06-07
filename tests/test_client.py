@@ -1,4 +1,5 @@
 import os
+from re import L
 from sgtpyutils.logger import logger
 import sgtlibc.gamebox as gb
 from sgtlibc import gamebox
@@ -23,15 +24,24 @@ def start_remote_start():
     data = gb.rc()
     assert data == b'test\n'
 
+
 def test_remote_start():
     start_remote_start()
 
-def test_remote_run():
-    start_remote_start()
 
+def test_remote_ten_times():
+    for i in range(10):
+        start_remote_start()
+
+
+def test_remote_recv_until():
+    start_remote_start()
     gb.se(b'str("Hello:")')
     gb.ru(b'Hello:\n', timeout=1)
 
+
+def test_remote_sendafter():
+    start_remote_start()
     gb.sl(b'''
 a = str("Hello:")
 b = 1+1
@@ -45,12 +55,15 @@ b = 1+1
     data = gb.rl()
     assert b'Hello:\n' == data
 
+
+def test_exception():
+    start_remote_start()
     gb.se(b'print(invalid')
+    logger.debug(gb.rl())
     gb.se(b'print(invalid')
+    logger.debug(gb.rl())
     gb.se(b'print(invalid')
+    logger.debug(gb.rl())
     gb.sl(b'str("Hello:")')
-    gb.rl()
-    gb.rl()
-    gb.rl()
     data = gb.rc()
-    data = b'Hello:\n'
+    assert data == b'Hello:\n'
