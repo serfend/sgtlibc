@@ -29,7 +29,7 @@ class ELF(pwn.ELF):
                           for x in g], key=lambda x: x[1])
         result = '\n'.join([x[0] for x in rop_pops])
         logger.info(f'rop on pop_register:\n{result}')
-        return rop_pops
+        return dict(rop_pops)
 
 
 # a = ELF('./pwn1')
