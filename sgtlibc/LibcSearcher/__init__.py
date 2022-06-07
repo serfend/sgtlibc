@@ -228,11 +228,11 @@ class LibcSearcher(object):
 
     def get_address(self, target_function: str) -> int:
         if not self.check_dumped_function(target_function):
-            return False
+            return None
         if self.offset == None:
             logger.warning(
                 'offset haven\'t been set,please use `set_offset` before get_address')
-            return False
+            return None
         return self.offset + self.dump_result[target_function]
 
 
