@@ -18,7 +18,9 @@ class ELF(pwn.ELF):
         if not actions:
             actions = 'ret' if detail == 'ret' else 'unknown'
             is_pop = False
-        return (f'rop_pop_{actions} = 0x{x.address:x} # {detail}', is_pop)
+        name = f'rop_pop_{actions}'
+        description = f'{name} = 0x{x.address:x} # {detail}'
+        return (actions, description, is_pop, x.address)
 
     def get_rop(self):
         rop = pwn.ROP(self)
@@ -26,10 +28,11 @@ class ELF(pwn.ELF):
         logger.info(f'chains:\n{rop.chain()}')
         g = rop.gadgets
         rop_pops = sorted([self.gadget_tostring(g[x])
-                          for x in g], key=lambda x: x[1])
-        result = '\n'.join([x[0] for x in rop_pops])
-        logger.info(f'rop on pop_register:\n{result}')
-        return dict(rop_pops)
+                          for x in g], key=lambda x: x[2])
+        description = '\n'.join([x[1] for x in rop_pops])
+        result = [[x[0], x[3]] for x in rop_pops]
+        logger.info(f'rop on pop_register:\n{description}')
+        return dict(result)
 
 
 # a = ELF('./pwn1')
