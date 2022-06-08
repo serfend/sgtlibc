@@ -36,6 +36,9 @@ def set_config(config: GameBoxConfig = None):
     pwn.context.os = config.os
     pwn.context.arch = config.arch
 
+    if config.auto_start_game:
+        start_game()
+
 
 def check_client():
     global client
