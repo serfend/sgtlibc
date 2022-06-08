@@ -101,7 +101,7 @@ class ELF(pwn.ELF):
         else:
             r = [x for x in result]
         if r:
-            info = r if isinstance(r, int) else [hex(x) for x in r]
+            info = hex(r) if isinstance(r, int) else [hex(x) for x in r]
             logger.info(f'found strings {target} in {info}')
         self.result_string[target] = r
         return True
