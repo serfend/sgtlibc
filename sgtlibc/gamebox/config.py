@@ -33,7 +33,7 @@ class GameBoxConfig:
 
     def __repr__(self) -> str:
         r = []
-        r.append(self.file)
-        r.append(self.remote)
+        r.append(self.file or 'NO FILE')
+        r.append(self.remote or 'NO REMOTE')
         r.append('LOCAL' if self.is_local else 'REMOTE')
         return '|'.join(r)
