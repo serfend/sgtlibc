@@ -21,7 +21,7 @@ class GameBoxConfig:
             if auto_show_rop:
                 self.elf.get_rop()
             if autu_load_shell_str:
-                self.elf.search_strings()
+                self.elf.search_string()
         self.auto_start_game = auto_start_game
         self.arch = self.elf.arch if self.elf else arch
         self.os = os
