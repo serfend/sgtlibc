@@ -32,7 +32,9 @@ class ELF(pwn.ELF):
         description = '\n'.join([x[1] for x in rop_pops])
         result = [[x[0], x[3]] for x in rop_pops]
         logger.info(f'rop on pop_register:\n{description}')
-        return dict(result)
+        result = dict(result)
+        self.rop = result
+        return result
 
 
 # a = ELF('./pwn1')
