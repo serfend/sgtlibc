@@ -1,6 +1,24 @@
 import pwn
 
 
+def is_64_or_86():
+    return '64' in pwn.context.arch
+
+
+def pc(data: bytes):
+    '''
+    same as `p32`/`p64` determined by pwn.context.arch
+    '''
+    return p64(data) if is_64_or_86() else p32(data)
+
+
+def uc(data: bytes):
+    '''
+    same as `u32`/`u64` determined by pwn.context.arch
+    '''
+    return u64(data) if is_64_or_86() else u32(data)
+
+
 def u16(data: bytes):
     '''
     unpack data to unsign-int32

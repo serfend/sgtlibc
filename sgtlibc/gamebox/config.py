@@ -1,9 +1,19 @@
+from ..ROPgadgets import ELF
+
+
 class GameBoxConfig:
-    def __init__(self, is_local: bool = True, file: str = None, remote: str = None, arch: str = 'amd64', os: str = 'linux', log_level: str = 'debug'):
+    def __init__(self, is_local: bool = True, file: str = None, remote: str = None, arch: str = 'amd64', os: str = 'linux', log_level: str = 'debug', elf: ELF = None):
+        '''
+        if elf is specified it would auto load its context.amd you can use `pc`/`uc` also, instead of `p32`/`u32` or `p64`/`u64`.
+        '''
         self.is_local = is_local
         self.file = file
         self.remote = remote
-        self.arch = arch
+        self.elf = elf
+        if elf:
+            self.arch = elf.arch
+        else:
+            self.arch = arch
         self.os = os
         self.log_level = log_level
         pass
