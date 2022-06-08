@@ -8,6 +8,15 @@ def pc(data: bytes):
     '''
     return p64(data) if is_64_or_86() else p32(data)
 
+# p00 = pc
+
+
+def p00(data: bytes):
+    '''
+    same as `p32`/`p64` determined by pwn.context.arch
+    '''
+    return pc(data)
+
 
 def uc(data: bytes):
     '''
