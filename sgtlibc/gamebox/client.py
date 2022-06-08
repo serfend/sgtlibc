@@ -10,7 +10,11 @@ is_local: bool = False
 tube_file: str = None
 tube_remote: Tuple = None
 elf: ELF = None
-
+def is_64_or_86():
+    global elf
+    if not elf:
+        raise Exception('elf not inited. you can use `start_game` and pass a file-path to init it.')
+    return '64' in elf.arch
 
 def set_config(config: GameBoxConfig = None):
     '''

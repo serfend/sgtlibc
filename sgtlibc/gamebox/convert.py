@@ -1,8 +1,5 @@
 import pwn
-
-
-def is_64_or_86():
-    return '64' in pwn.context.arch
+from .client import is_64_or_86
 
 
 def pc(data: bytes):
