@@ -31,7 +31,7 @@ def set_config(config: GameBoxConfig = None):
     client = None
     global elf
     elf = config.elf
-    
+
     pwn.context.log_level = config.log_level
     pwn.context.os = config.os
     pwn.context.arch = config.arch
@@ -43,20 +43,28 @@ def check_client():
     check if client (remote/local) is available
     '''
     if not client:
-        client = start_game()
+        start_game()
         if not client:
             logger.error('client not available')
             sys.exit(0)
     return client
 
 
-def start_game():
+def start_game(attach_to_client: bool = True):
+    '''
+    start a game base on current-config
+    if attach_to_client is True,client will set to return-result
+    '''
     global is_local
     local = is_local
     if local:
         global tube_file
         os.system(f'chmod 777 {tube_file}')
-        return pwn.process(tube_file)
+        r = pwn.process(tube_file)
     else:
         global tube_remote
-        return pwn.remote(tube_remote[0], tube_remote[1])
+        r = pwn.remote(tube_remote[0], tube_remote[1])
+    if attach_to_client:
+        global client
+        client = r
+    return r
