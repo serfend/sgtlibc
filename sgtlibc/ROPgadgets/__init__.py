@@ -75,8 +75,15 @@ class ELF(pwn.ELF):
         if isinstance(strs, List):
             for i in strs:
                 self.__search_string(i, search_all)
+            return self.result_string
         else:
             self.__search_string(strs, search_all)
+        if (isinstance(strs, str) or isinstance(strs, bytes)) and not search_all:
+            # user seems expected only one result , than directly return
+            result = [self.result_string[x] for x in self.result_string]
+            if not result:
+                return None
+            return result[0]
         return self.result_string
 
     def __search_string(self, target: bytes, all: bool):

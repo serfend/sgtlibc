@@ -23,8 +23,7 @@ def test_string_search():
     assert not [x for x in result if result[x]]
 
     result = elf.search_string()
-    assert b'sh' in result
-    assert result[b'sh'] == 0x60109f
+    assert result == 0x60109f # direct return result on single request
 
     result = elf.search_string(b'/bin/sh', search_all=True)
     assert not [x for x in result if result[x]]
@@ -37,8 +36,7 @@ def test_string_search():
     assert result[b'sh'] == [0x60109f]
 
     result = elf.search_string(b'buf')
-    assert b'buf' in result
-    assert result[b'buf'] == 0x400430
+    assert result == 0x400430 # direct return result on single request
 
     result = elf.search_string(['buf', 'nptr'])
     assert b'buf' in result
