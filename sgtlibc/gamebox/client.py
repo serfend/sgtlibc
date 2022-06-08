@@ -1,3 +1,4 @@
+from sgtlibc.ROPgadgets import ELF
 from .config import GameBoxConfig
 from sgtpyutils.logger import logger
 from typing import Tuple
@@ -8,6 +9,7 @@ client: pwn.tube = None
 is_local: bool = False
 tube_file: str = None
 tube_remote: Tuple = None
+elf: ELF = None
 
 
 def set_config(config: GameBoxConfig = None):
@@ -27,6 +29,9 @@ def set_config(config: GameBoxConfig = None):
     is_local = config.is_local
     global client
     client = None
+    global elf
+    elf = config.elf
+    
     pwn.context.log_level = config.log_level
     pwn.context.os = config.os
     pwn.context.arch = config.arch
