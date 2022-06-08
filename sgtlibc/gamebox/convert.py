@@ -4,7 +4,7 @@ from .client import is_64_or_86
 
 def pc(data: bytes):
     '''
-    same as `p32`/`p64` determined by pwn.context.arch
+    same as `p32`/`p64` determined by elf.arch
     '''
     return p64(data) if is_64_or_86() else p32(data)
 
@@ -13,16 +13,23 @@ def pc(data: bytes):
 
 def p00(data: bytes):
     '''
-    same as `p32`/`p64` determined by pwn.context.arch
+    same as `p32`/`p64` determined by elf.arch
     '''
     return pc(data)
 
 
 def uc(data: bytes):
     '''
-    same as `u32`/`u64` determined by pwn.context.arch
+    same as `u32`/`u64` determined by elf.arch
     '''
     return u64(data) if is_64_or_86() else u32(data)
+
+
+def u00(data: bytes):
+    '''
+    same as `u32`/`u64` determined by elf.arch
+    '''
+    return uc(data)
 
 
 def u16(data: bytes):
