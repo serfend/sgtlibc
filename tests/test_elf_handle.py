@@ -47,10 +47,10 @@ def test_string_search():
 
     result = elf.search_string(b'buf', search_all=True)
     assert b'buf' in result
-    assert result[b'buf'] == 0x400430
+    assert result[b'buf'] == [0x400430]
     assert not result[b'nptr']
 
     result = elf.search_string(['buf', 'nptr'], search_all=True)
     assert b'buf' in result
-    assert result[b'buf'] == 0x400430
+    assert result[b'buf'][0] == [0x400430]
     assert not result[b'nptr']
