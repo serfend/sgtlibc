@@ -1,5 +1,5 @@
 import os
-
+import sgtlibc.ROPgadgets
 
 def get_resources_by_path(child_path: str):
     resource_path = os.path.dirname(
@@ -10,3 +10,11 @@ def get_resources_by_path(child_path: str):
 
 def get_elf_resources(resource_name: str):
     return get_resources_by_path(f'elf{os.path.sep}{resource_name}')
+
+def get_demo_elf():
+    return get_elf_resources('pwn1')
+
+def get_demo_ELF():
+    path = get_demo_elf()
+    elf = sgtlibc.ROPgadgets.ELF(path)
+    return elf
