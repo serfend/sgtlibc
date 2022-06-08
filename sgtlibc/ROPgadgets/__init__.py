@@ -22,18 +22,28 @@ class ELF(pwn.ELF):
         description = f'{name} = 0x{x.address:x} # {detail}'
         return (actions, description, is_pop, x.address)
 
-    def get_rop(self):
+    def get_rop(self, show_banner: bool = True):
+        r = ['ELF::get_rop']
         rop = pwn.ROP(self)
-        logger.info('dump rop chain and registers')
-        logger.info(f'chains:\n{rop.chain()}')
+        banner = 'SHOW ROP INFO'
+        if show_banner:
+            r.append(banner.center(40, '#'))
+        c = rop.chain()
+        if len(c):
+            r.append(f'# chains:\n{rop.chain()}')
+        else:
+            r.append(f'# chains not found')
         g = rop.gadgets
         rop_pops = sorted([self.gadget_tostring(g[x])
                           for x in g], key=lambda x: x[2])
         description = '\n'.join([x[1] for x in rop_pops])
         result = [[x[0], x[3]] for x in rop_pops]
-        logger.info(f'rop on pop_register:\n{description}')
+        r.append(f'rop on pop_register:\n{description}')
         result = dict(result)
         self.rop = result
+        if show_banner:
+            r.append(banner.center(40, '#'))
+        logger.info('\n'.join(r))
         return result
 
 
