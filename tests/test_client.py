@@ -21,7 +21,7 @@ def test_remote_connection():
 def start_remote_start():
     test_remote_connection()
     gb.sl(b'str("test")')
-    data = gb.rc()
+    data = gb.rc(timeout=1)
     assert data == b'test\n'
 
 
@@ -46,24 +46,30 @@ def test_remote_sendafter():
 a = str("Hello:")
 b = 1+1
     ''')
-    gb.sla(b'{"a": "Hello:", "b": 2}\n', b'str("Hello:")')
+    gb.sla(b'{"a": "Hello:", "b": 2}\n', b'str("Hello:")', timeout=1)
 
-    gb.sa(b'Hello:\n', b'str("Hello:")')
+    gb.sa(b'Hello:\n', b'str("Hello:")', timeout=1)
+    data = gb.rl(timeout=1)
+    assert b'Hello:\n' == data
+
     gb.sl(b'str("Hello:")')
-    data = gb.rl()
+    data = gb.rl(timeout=1)
     assert b'Hello:\n' == data
-    data = gb.rl()
-    assert b'Hello:\n' == data
+
+
+def test_remote_sendafter_ten_times():
+    for i in range(10):
+        test_remote_sendafter()
 
 
 def test_exception():
     start_remote_start()
     gb.se(b'print(invalid')
-    logger.debug(gb.rl())
+    logger.debug(gb.rl(timeout=1))
     gb.se(b'print(invalid')
-    logger.debug(gb.rl())
+    logger.debug(gb.rl(timeout=1))
     gb.se(b'print(invalid')
-    logger.debug(gb.rl())
+    logger.debug(gb.rl(timeout=1))
     gb.sl(b'str("Hello:")')
-    data = gb.rc()
+    data = gb.rc(timeout=1)
     assert data == b'Hello:\n'
