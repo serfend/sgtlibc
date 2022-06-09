@@ -1,3 +1,3 @@
-sgtpyutils
+sgtpyutils >= 1.7.94
 colorlog
 pwntools
