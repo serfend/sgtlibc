@@ -57,7 +57,7 @@ class LibcSearcher(object):
         self.conditions[func] = address
         self.condition_reg[func] = re_compile
 
-    def decided(self, max_show_count: int = 10) -> Tuple:
+    def decided(self, max_show_count: int = 5) -> Tuple:
         '''
         matching libc-database with condition(s)
         return is_found,db_description,db_count
@@ -99,7 +99,7 @@ class LibcSearcher(object):
                     result.append(symbol_file)
         self.db = result
 
-    def list_db(self, max_show_count: int = 10):
+    def list_db(self, max_show_count: int = 5):
         '''
         return is_found,db_description,db_count
         '''
