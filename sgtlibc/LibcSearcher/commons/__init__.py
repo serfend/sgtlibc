@@ -1,5 +1,5 @@
 commons = ["__libc_start_main_ret", "str_bin_sh",
-           "system", "dup2", "read", "write", "puts"]
+           "system", "dup2", "read", "write", "puts", 'printf']
 
 for i in commons:
     globals()[f'SYMBOL_{i}'] = i
@@ -11,3 +11,4 @@ dup2 = SYMBOL_dup2
 read = SYMBOL_read
 write = SYMBOL_write
 puts = SYMBOL_puts
+printf = SYMBOL_printf
