@@ -65,7 +65,8 @@ class ELF(pwn.ELF):
             r = [f'# {name}'.center(30, '#')]
             r += list2sheet(
                 lines=lines,
-                line_renderer=lambda i: f'{name}_{i} = {hex(data[i])}'
+                line_renderer=lambda i: f'{name}_{i} = {hex(data[i])}',
+                show_line_number=False
             )
             return '\n'.join(r)
         r = ['\n', f'# show_symbols of {self.path[-20:]}'.center(35)]
