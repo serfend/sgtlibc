@@ -5,20 +5,7 @@ import os
 import re
 import sys
 from typing import Callable, List, Tuple
-
-
-def dict2sheet(header: dict, data: dict, formatter: Callable = None):
-    result = dict(header)
-    result.update(data)
-
-    def left_just(x: str):
-        return x.ljust(30, ' ')
-    if not formatter:
-        def formatter(
-            x, dic): return f'{left_just(x)}\t{hex(dic[x]) if isinstance(dic[x],int) else dic[x]}'
-    output = [formatter(x, result) for x in result]
-    output = '\n'.join(output)
-    return output
+from sgtpyutils.xls_txt import dict2sheet, list2sheet
 
 
 class LibcSearcher(object):
@@ -89,7 +76,7 @@ class LibcSearcher(object):
             'Condition Function': 'Address In ELF',
             '-'*20: '-'*10
         }
-        content = dict2sheet(result_header, self.conditions)
+        content = '\n'.join(dict2sheet(data=self.conditions, header=result_header))
         a = f'finding matchable libc in {len(self.files)} files'
         b = f'with {len(self.conditions)} condition(s)'
         logger.debug(f'{a} , {b}\n{content}')
@@ -118,22 +105,10 @@ class LibcSearcher(object):
         if count == 0:
             logger.error("No matched libc, please add more libc or try others")
             return False, None, 0
-        max_show_count = 6  # TODO support custome
-        min_hide_count = 4  # TODO support custome
-        skip_convert = None
-        if count > max_show_count + min_hide_count:
-            skip_convert = count - max_show_count
-            half = int(max_show_count/2)
-            result = result[0:half] + [None] + result[-half:]
-
-        if skip_convert:
-            result = [
-                f"{x if x<half else x-1:3d}: {self.pmore(result[x]) if result[x] else None}" for x in range(len(result))]
-            result[half] = f'     ...other {skip_convert} results...'
-        else:
-            result = [
-                f"{x:3d}: {self.pmore(result[x])}" for x in range(len(result))]
-        result = "\n".join(result)
+        result = '\n'.join(list2sheet(
+            lines=self.db,
+            line_renderer=lambda x: self.pmore(x)
+        ))
         logger.info(f'{count} db(s) is found:\n{result}')
         return True, result, count
 
@@ -191,7 +166,7 @@ class LibcSearcher(object):
                 'Function Name': 'Address In Libc',
                 '-'*20: '-'*10
             }
-            output = dict2sheet(result_header, self.dump_result)
+            output = '\n'.join(dict2sheet(data=self.dump_result, header=result_header))
             logger.info(f'function(s) in libc {db_name}:\n{output}')
 
             self.sync_offset()

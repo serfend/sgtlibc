@@ -3,7 +3,7 @@ from ..ROPgadgets import ELF
 
 
 class GameBoxConfig:
-    def __init__(self, is_local: bool = True, file: str = None, remote: str = None, arch: str = 'amd64', os: str = 'linux', log_level: str = 'debug', auto_load: bool = False, auto_show_rop: bool = False, auto_start_game: bool = True, auto_show_summary: bool = False, autu_load_shell_str: bool = True):
+    def __init__(self, is_local: bool = True, file: str = None, remote: str = None, arch: str = 'amd64', os: str = 'linux', log_level: str = 'debug', auto_load: bool = False, auto_show_rop: bool = False, auto_start_game: bool = True, auto_show_summary: bool = False, autu_load_shell_str: bool = True, auto_show_symbols: bool = False):
         '''
         if auto_load is True, it would auto load its context.amd you can use `pc`/`uc` also, instead of `p32`/`u32` or `p64`/`u64`.
         if auto_show_rop is True, equal to call `elf.get_rop()`
@@ -22,6 +22,8 @@ class GameBoxConfig:
                 self.elf.get_rop()
             if autu_load_shell_str:
                 self.elf.search_string()
+            if auto_show_symbols:
+                self.elf.show_symbols()
         self.auto_start_game = auto_start_game
         self.arch = self.elf.arch if self.elf else arch
         self.os = os

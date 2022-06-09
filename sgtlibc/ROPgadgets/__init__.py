@@ -1,9 +1,9 @@
 # use pwntools ELF for read ROP and return its context
-from typing import List, overload
+from typing import Dict, List, Tuple, overload
 import pwn
 from pwnlib.rop.gadgets import Gadget
 from .. import logger
-
+from sgtpyutils.xls_txt import list2sheet
 # if you want direct run this script , comment above and uncomment following
 # class A:
 #     pass
@@ -47,6 +47,25 @@ class ELF(pwn.ELF):
         logger.info('\n'.join(r))
         return result
     StringDefault = [b'/bin/bash', b'bash', b'sh']
+
+    def show_symbols(self):
+        def renderer(data: Dict, name: str):
+            if isinstance(data, Tuple):
+                lines = [x for x in data[0] if all(
+                    [not x.startswith(des) for des in data[1:]])]
+            else:
+                lines = list(data)
+            r = [f'# {name}'.center(30, '#')]
+            r += list2sheet(
+                lines=lines,
+                line_renderer=lambda i: f'{name}_{i} = {hex(data[i])}'
+            )
+            return '\n'.join(r)
+        r = ['\n', f'# show_symbols of {self.path[-20:]}'.center(35)]
+        export = [['symbols', 'got', 'plt'], 'got', 'plt']
+        r += [renderer(getattr(self, x), x) for x in export]
+        content = '\n'.join(r)
+        logger.info(content)
 
     @overload
     def search_string(self):
