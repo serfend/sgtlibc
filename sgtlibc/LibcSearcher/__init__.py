@@ -128,11 +128,11 @@ class LibcSearcher(object):
 
         if skip_convert:
             result = [
-                f"{x+1 if x<half else x:3d}: {self.pmore(result[x]) if result[x] else None}" for x in range(len(result))]
+                f"{x if x<half else x-1:3d}: {self.pmore(result[x]) if result[x] else None}" for x in range(len(result))]
             result[half] = f'     ...other {skip_convert} results...'
         else:
             result = [
-                f"{x+1:3d}: {self.pmore(result[x])}" for x in range(len(result))]
+                f"{x:3d}: {self.pmore(result[x])}" for x in range(len(result))]
         result = "\n".join(result)
         logger.info(f'{count} db(s) is found:\n{result}')
         return True, result, count
@@ -147,8 +147,12 @@ class LibcSearcher(object):
             info = 'noalias'
         return f'{info} ({result})'
 
-    # Wrapper for libc-database's dump shell script.
     def dump(self, func: List = None, db_index: int = -1):
+        '''
+        dump libc-addr from search-result
+        func: List[str] the function address to get
+        db_index: from 0 to n , default use `current_focus_db`
+        '''
         if db_index < 0:
             db_index = self.current_focus_db
         elif self.current_focus_db != db_index:
