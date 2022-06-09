@@ -51,9 +51,14 @@ class ELF(pwn.ELF):
     def show_symbols(self):
         def renderer(name: str):
             if isinstance(name, List):
-                data = getattr(self, name[0])
+                excludes = name[1:]
+                name = name[0]
+                data = getattr(self, name)
                 lines = [x for x in data if all(
-                    [not x.startswith(des) for des in name[1:]])]
+                    [not x.startswith(des) for des in excludes])]
+                for ex in excludes:
+                    dic = getattr(self, ex)
+                    lines = [x for x in lines if not x in dic]
             else:
                 data = getattr(self, name)
                 lines = list(data)
