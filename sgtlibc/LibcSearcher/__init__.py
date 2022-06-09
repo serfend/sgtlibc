@@ -126,7 +126,7 @@ class LibcSearcher(object):
             info = 'noalias'
         return f'{info} ({result})'
 
-    def dump(self, func: List = None, db_index: int = -1, max_show_count: int = 10):
+    def dump(self, func: List = None, db_index: int = -1, max_show_count: int = 5):
         '''
         dump libc-addr from search-result
         func: List[str] the function address to get
