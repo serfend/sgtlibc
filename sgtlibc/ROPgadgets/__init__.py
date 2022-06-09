@@ -49,11 +49,13 @@ class ELF(pwn.ELF):
     StringDefault = [b'/bin/bash', b'bash', b'sh']
 
     def show_symbols(self):
-        def renderer(data: Dict, name: str):
-            if isinstance(data, Tuple):
-                lines = [x for x in data[0] if all(
-                    [not x.startswith(des) for des in data[1:]])]
+        def renderer(name: str):
+            if isinstance(name, List):
+                data = getattr(self, name[0])
+                lines = [x for x in data if all(
+                    [not x.startswith(des) for des in name[1:]])]
             else:
+                data = getattr(self, name)
                 lines = list(data)
             r = [f'# {name}'.center(30, '#')]
             r += list2sheet(
@@ -63,7 +65,7 @@ class ELF(pwn.ELF):
             return '\n'.join(r)
         r = ['\n', f'# show_symbols of {self.path[-20:]}'.center(35)]
         export = [['symbols', 'got', 'plt'], 'got', 'plt']
-        r += [renderer(getattr(self, x), x) for x in export]
+        r += [renderer(x) for x in export]
         content = '\n'.join(r)
         logger.info(content)
 
