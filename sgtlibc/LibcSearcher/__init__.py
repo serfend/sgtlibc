@@ -224,6 +224,9 @@ class LibcSearcher(object):
     def check_dumped_function(self, target_function: str) -> bool:
         if not target_function in self.dump_result:
             r = self.dump([target_function], self.current_focus_db)
+            if not r:
+                logger.error('dump result is empty')
+                return False
             if not target_function in r:
                 logger.warning(
                     f'target function [{target_function}] not found')
