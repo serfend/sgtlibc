@@ -14,8 +14,13 @@ class GameBoxConfig:
         self.file = file
         self.remote = remote
         self.auto_load = auto_load
-        self.elf = ELF(file, checksec=auto_show_summary) if auto_load else None
         self.result_string = None
+        self.auto_start_game = auto_start_game
+        self.os = os
+        self.log_level = log_level
+
+        self.elf = ELF(file, checksec=auto_show_summary) if auto_load else None
+        self.arch = self.elf.arch if self.elf else arch
         if self.elf:
             pass
             if auto_show_rop:
@@ -24,11 +29,6 @@ class GameBoxConfig:
                 self.elf.search_string()
             if auto_show_symbols:
                 self.elf.show_symbols()
-        self.auto_start_game = auto_start_game
-        self.arch = self.elf.arch if self.elf else arch
-        self.os = os
-        self.log_level = log_level
-        pass
 
     @property
     def tube_remote(self):
