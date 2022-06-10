@@ -2,41 +2,67 @@ import pwn
 from .client import is_64_or_86
 
 
-def fakeebp() -> bytes:
+def __get_arch(specify_arch: int = None):
+    if specify_arch == None:
+        return is_64_or_86()
+    elif specify_arch == 32:
+        return False
+    elif specify_arch == 64:
+        return True
+    raise(Exception('invalid specify_arch'))
+
+
+def fakeebp(specify_arch: int = None) -> bytes:
     '''
     return a p00(0xdeadbeef)
+
+    specify_arch:str `32`/`64`/None. 
+                if none is set ,will use auto-by-elf else use p32/p64
     '''
-    return p00(0xdeadbeef)
+    data = 0xdeadbeef
+    return pc(data=data, specify_arch=specify_arch)
 
 
-def pc(data: bytes) -> bytes:
+def pc(data: bytes, specify_arch: int = None) -> bytes:
     '''
     same as `p32`/`p64` determined by elf.arch
+
+    specify_arch:str `32`/`64`/None. 
+                if none is set ,will use auto-by-elf else use p32/p64
     '''
-    return p64(data) if is_64_or_86() else p32(data)
+    return p64(data) if __get_arch(specify_arch) else p32(data)
 
 # p00 = pc
 
 
-def p00(data: bytes) -> bytes:
+def p00(data: bytes, specify_arch: int = None) -> bytes:
     '''
     same as `p32`/`p64` determined by elf.arch
+
+    specify_arch:str `32`/`64`/None. 
+                if none is set ,will use auto-by-elf else use p32/p64
     '''
-    return pc(data)
+    return pc(data = data, specify_arch = specify_arch)
 
 
-def uc(data: bytes) -> int:
+def uc(data: bytes, specify_arch: int = None) -> int:
     '''
     same as `u32`/`u64` determined by elf.arch
+
+    specify_arch:str `32`/`64`/None. 
+                if none is set ,will use auto-by-elf else use u32/u64
     '''
-    return u64(data) if is_64_or_86() else u32(data)
+    return u64(data) if __get_arch(specify_arch) else u32(data)
 
 
-def u00(data: bytes) -> int:
+def u00(data: bytes, specify_arch: int = None) -> int:
     '''
     same as `u32`/`u64` determined by elf.arch
+
+    specify_arch:str `32`/`64`/None. 
+                if none is set ,will use auto-by-elf else use u32/u64
     '''
-    return uc(data)
+    return uc(data=data, specify_arch=specify_arch)
 
 
 def u16(data: bytes) -> int:

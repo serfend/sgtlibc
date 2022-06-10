@@ -1,9 +1,14 @@
 from typing import List, overload
-from ..ROPgadgets import ELF
+from ..ROPgadgets.ExtendELF import ELF
 
 
 class GameBoxConfig:
-    def __init__(self, is_local: bool = True, file: str = None, remote: str = None, arch: str = 'amd64', os: str = 'linux', log_level: str = 'debug', auto_load: bool = False, auto_show_rop: bool = False, auto_start_game: bool = True, auto_show_summary: bool = False, auto_load_shell_str: bool = True, auto_show_symbols: bool = False):
+    def __init__(self,
+                 is_local: bool = True,
+                 file: str = None, remote: str = None,
+                 arch: str = 'amd64', os: str = 'linux', log_level: str = 'debug', terminal: List = None,
+                 auto_load: bool = False, auto_show_rop: bool = False, auto_start_game: bool = True, auto_show_summary: bool = False,
+                 auto_load_shell_str: bool = True, auto_show_symbols: bool = False):
         '''
         if auto_load is True, it would auto load its context.amd you can use `pc`/`uc` also, instead of `p32`/`u32` or `p64`/`u64`.
         if auto_show_rop is True, equal to call `elf.get_rop()`
@@ -16,8 +21,10 @@ class GameBoxConfig:
         self.auto_load = auto_load
         self.result_string = None
         self.auto_start_game = auto_start_game
+
         self.os = os
         self.log_level = log_level
+        self.terminal = terminal
 
         self.elf = ELF(file, checksec=auto_show_summary) if auto_load else None
         self.arch = self.elf.arch if self.elf else arch

@@ -1,4 +1,4 @@
-from sgtlibc.ROPgadgets import ELF
+from sgtlibc.ROPgadgets.ExtendELF import ELF
 from .config import GameBoxConfig
 from sgtpyutils.logger import logger
 from typing import Tuple
@@ -39,6 +39,7 @@ def set_config(config: GameBoxConfig = None):
     pwn.context.log_level = config.log_level
     pwn.context.os = config.os
     pwn.context.arch = config.arch
+    pwn.context.terminal = config.terminal
 
     if config.auto_start_game:
         start_game()
