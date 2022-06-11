@@ -22,7 +22,7 @@ class LibcSearcher(object):
         self.libc_database_path = os.path.join(
             os.path.realpath(os.path.dirname(__file__)), os.pardir, f"libc-database{os.sep}db{os.sep}")
         self.libc_database_path = os.path.realpath(self.libc_database_path)
-        self.db = ""
+        self.__db = []
         self.current_focus_db = 0
         self.init_db()
 
@@ -97,19 +97,28 @@ class LibcSearcher(object):
                         break
                 if fitted_libc:
                     result.append(symbol_file)
-        self.db = result
+        self.__db = result
 
-    def list_db(self, max_show_count: int = 5):
+    def all_db(self, filter: Callable = None):
+        db_list = self.__db
+        if not db_list:
+            return []
+        if not filter:
+            def filter(x): return True
+        db_list = [x for x in db_list if filter(x)]
+        return db_list
+
+    def list_db(self, max_show_count: int = 5, filter: Callable = None):
         '''
         return is_found,db_description,db_count
         '''
-        result = self.db
+        result = self.all_db(filter=filter)
         count = len(result)
         if count == 0:
             logger.error("No matched libc, please add more libc or try others")
             return False, None, 0
         result = '\n'.join(list2sheet(
-            lines=self.db,
+            lines=result,
             line_renderer=lambda x: self.pmore(x),
             max_show_count=max_show_count
         ))
@@ -126,11 +135,12 @@ class LibcSearcher(object):
             info = 'noalias'
         return f'{info} ({result})'
 
-    def dump(self, func: List = None, db_index: int = -1, max_show_count: int = 5):
+    def dump(self, func: List = None, db_index: int = -1, max_show_count: int = 5, filter: Callable = None):
         '''
         dump libc-addr from search-result
         func: List[str] the function address to get
         db_index: from 0 to n , default use `current_focus_db`
+        filter: Callable[libc_name:str]->bool , filter result with this predict
         '''
         if db_index < 0:
             db_index = self.current_focus_db
@@ -141,20 +151,23 @@ class LibcSearcher(object):
         if not isinstance(db_index, int):
             db_index = int(db_index)
         # check if no result been calculated
-        if not self.db:
+        db_list = self.all_db(filter=filter)
+        if not self.__db:
             self.__db_result = self.decided(
                 max_show_count=max_show_count
             )
             if not self.__db_result[0]:
                 return False
-        if len(self.db) < db_index + 1:
+            db_list = self.all_db(filter=filter)
+            
+        if len(db_list) < db_index + 1:
             logger.error(
                 f'db[{db_index}] not exist.\n')
             self.list_db(
                 max_show_count=max_show_count
             )
             return
-        db_name = self.db[db_index]
+        db_name = db_list[db_index]
         logger.debug(f'dumping db[{db_index}]:{self.pmore(db_name)}')
         db = f'{self.libc_database_path}{os.sep}{db_name}'
         with open(db, 'rb') as fd:
