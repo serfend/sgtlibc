@@ -4,3 +4,4 @@ from .control import *
 from .convert import *
 from .client import set_config, GameBoxConfig, start_game
 from . import gadgets
+from . import formats

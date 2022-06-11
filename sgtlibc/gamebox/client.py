@@ -10,11 +10,15 @@ is_local: bool = False
 tube_file: str = None
 tube_remote: Tuple = None
 elf: ELF = None
+
+
 def is_64_or_86():
     global elf
     if not elf:
-        raise Exception('elf not inited. you can use `start_game` and pass a file-path to init it.')
+        raise Exception(
+            'elf not inited. you can use `start_game` and pass a file-path to init it.')
     return '64' in elf.arch
+
 
 def set_config(config: GameBoxConfig = None):
     '''
@@ -74,5 +78,10 @@ def start_game(attach_to_client: bool = True):
         r = pwn.remote(tube_remote[0], tube_remote[1])
     if attach_to_client:
         global client
+        if client:
+            try:
+                client.close()
+            except:
+                pass
         client = r
     return r
