@@ -24,6 +24,7 @@ class LibcSearcher(object):
         self.libc_database_path = os.path.realpath(self.libc_database_path)
         self.__db = []
         self.current_focus_db = 0
+        self.current_filter = None
         self.init_db()
 
     def init_db(self):
@@ -57,7 +58,7 @@ class LibcSearcher(object):
         self.conditions[func] = address
         self.condition_reg[func] = re_compile
 
-    def decided(self, max_show_count: int = 5) -> Tuple:
+    def decided(self, max_show_count: int = 5, filter: Callable = None) -> Tuple:
         '''
         matching libc-database with condition(s)
         return is_found,db_description,db_count
@@ -70,7 +71,8 @@ class LibcSearcher(object):
         self.list_conditions()
         self.search_db()
         return self.list_db(
-            max_show_count=max_show_count
+            max_show_count=max_show_count,
+            filter=filter
         )
 
     def list_conditions(self):
@@ -115,7 +117,8 @@ class LibcSearcher(object):
         result = self.all_db(filter=filter)
         count = len(result)
         if count == 0:
-            logger.error("No matched libc, please add more libc or try others")
+            logger.error(
+                "No matched libc, please add more libc or try others elf.got.")
             return False, None, 0
         result = '\n'.join(list2sheet(
             lines=result,
@@ -142,6 +145,10 @@ class LibcSearcher(object):
         db_index: from 0 to n , default use `current_focus_db`
         filter: Callable[libc_name:str]->bool , filter result with this predict
         '''
+        if not filter:
+            filter = self.current_filter
+        else:
+            self.current_filter = filter
         if db_index < 0:
             db_index = self.current_focus_db
         elif self.current_focus_db != db_index:
@@ -154,17 +161,19 @@ class LibcSearcher(object):
         db_list = self.all_db(filter=filter)
         if not self.__db:
             self.__db_result = self.decided(
-                max_show_count=max_show_count
+                max_show_count=max_show_count,
+                filter=filter
             )
             if not self.__db_result[0]:
                 return False
             db_list = self.all_db(filter=filter)
-            
+
         if len(db_list) < db_index + 1:
             logger.error(
                 f'db[{db_index}] not exist.\n')
             self.list_db(
-                max_show_count=max_show_count
+                max_show_count=max_show_count,
+                filter=filter
             )
             return
         db_name = db_list[db_index]
