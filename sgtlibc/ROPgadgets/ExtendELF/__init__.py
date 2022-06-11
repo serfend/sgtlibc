@@ -3,7 +3,7 @@ from typing import Dict, List, Tuple, overload
 import pwn
 from pwnlib.rop.gadgets import Gadget
 from ... import logger
-from sgtpyutils.xls_txt import list2sheet
+from sgtpyutils.xls_txt import list2sheet, dict2sheet
 # if you want direct run this script , comment above and uncomment following
 # class A:
 #     pass
@@ -99,19 +99,38 @@ class ELF(pwn.ELF):
         self.result_string = {}
         if strs is None:
             strs = ELF.StringDefault
+        self.last_string_target = strs
         if isinstance(strs, List):
             for i in strs:
                 self.__search_string(i, search_all)
-            return self.result_string
+            return self.list_result()
         else:
             self.__search_string(strs, search_all)
         if (isinstance(strs, str) or isinstance(strs, bytes)) and not search_all:
             # user seems expected only one result , than directly return
-            result = [self.result_string[x] for x in self.result_string]
-            if not result:
-                return None
-            return result[0]
-        return self.result_string
+            self.list_result(only_return_one=True)
+        return self.list_result()
+
+    @overload
+    def list_result(self) -> Dict:
+        ...
+
+    @overload
+    def list_result(self, only_return_one: bool) -> int:
+        ...
+
+    def list_result(self, only_return_one: bool = False) -> Dict:
+        r = self.result_string
+        str_targets = ','.join([str(x) for x in self.last_string_target])
+        if not r:
+            logger.warning(f'not found any strings in {str_targets}')
+            return None
+        output = dict2sheet(r)
+        output = '\n'.join(output)
+        logger.info(f'\nfound strings in {str_targets}.\n{output}')
+        if only_return_one:
+            return r[list(r)[0]]
+        return r
 
     def __search_string(self, target: bytes, all: bool):
         if isinstance(target, str):
@@ -127,9 +146,6 @@ class ELF(pwn.ELF):
                 break
         else:
             r = [x for x in result]
-        if r:
-            info = hex(r) if isinstance(r, int) else [hex(x) for x in r]
-            logger.info(f'found strings {target} in {info}')
         self.result_string[target] = r
         return True
 
