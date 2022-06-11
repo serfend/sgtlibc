@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
+
+from sgtlibc.utils.compat import deprecated
 from .. import logger
 import os
 import re
@@ -100,6 +102,12 @@ class LibcSearcher(object):
                 if fitted_libc:
                     result.append(symbol_file)
         self.__db = result
+
+    @property
+    @deprecated("Use all_db([filter]) to get databases")
+    def db(self):
+        import openpyxl
+        return self.all_db()
 
     def all_db(self, filter: Callable = None):
         db_list = self.__db
