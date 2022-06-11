@@ -27,6 +27,7 @@ class LibcSearcher(object):
         self.__db = []
         self.current_focus_db = 0
         self.current_filter = None
+        self.is_first_filter = True
         self.init_db()
 
     def init_db(self):
@@ -115,8 +116,17 @@ class LibcSearcher(object):
             return []
         if not filter:
             def filter(x): return True
-        db_list = [x for x in db_list if filter(x)]
-        return db_list
+        result = [x for x in db_list if filter(x)]
+        filter_count = len(db_list) - len(result)
+        if filter_count > 0:
+            notice = f'{filter_count} db(s) is filtered by user-setting.'
+            if self.is_first_filter:
+                self.is_first_filter = False
+                hidden = list(set(db_list).difference(set(result)))
+                hidden = '\n'.join(list2sheet(hidden))
+                notice = f'{notice}\n{hidden}'
+            logger.warning(notice)
+        return result
 
     def list_db(self, max_show_count: int = 5, filter: Callable = None):
         '''
@@ -157,6 +167,7 @@ class LibcSearcher(object):
             filter = self.current_filter
         else:
             self.current_filter = filter
+            self.is_first_filter = True
         if db_index < 0:
             db_index = self.current_focus_db
         elif self.current_focus_db != db_index:
