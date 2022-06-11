@@ -3,7 +3,8 @@ import sgtlibc.gamebox as gb
 
 import sgtlibc.ROPgadgets
 import os
-from .common import get_elf_resources, check_shell_validate
+from .common import get_elf_resources
+from sgtlibc.utils.shell import check_shell_validate
 import pytest
 import platform
 

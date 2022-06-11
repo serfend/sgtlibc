@@ -1,7 +1,5 @@
 import os
 import sgtlibc.ROPgadgets
-from .shell import check_shell_validate
-
 
 def get_resources_by_path(child_path: str):
     resource_path = os.path.dirname(
