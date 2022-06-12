@@ -122,7 +122,7 @@ class ELF(pwn.ELF):
     def list_result(self, only_return_one: bool = False) -> Dict:
         r = self.result_string
         str_targets = ','.join([str(x) for x in self.last_string_target])
-        if not r:
+        if all([not r[x] for x in r]):
             logger.warning(f'not found any strings in {str_targets}')
             return None
         output = dict2sheet(r)
