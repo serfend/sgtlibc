@@ -103,12 +103,11 @@ class ELF(pwn.ELF):
         if isinstance(strs, List):
             for i in strs:
                 self.__search_string(i, search_all)
-            return self.list_result()
         else:
             self.__search_string(strs, search_all)
-        if (isinstance(strs, str) or isinstance(strs, bytes)) and not search_all:
-            # user seems expected only one result , than directly return
-            self.list_result(only_return_one=True)
+            if (isinstance(strs, str) or isinstance(strs, bytes)) and not search_all:
+                # user seems expected only one result , than directly return
+                return self.list_result(only_return_one=True)
         return self.list_result()
 
     @overload
@@ -121,10 +120,12 @@ class ELF(pwn.ELF):
 
     def list_result(self, only_return_one: bool = False) -> Dict:
         r = self.result_string
-        str_targets = ','.join([str(x) for x in self.last_string_target])
+        str_targets = ','.join([str(x) for x in self.last_string_target]) if isinstance(
+            self.last_string_target, Dict) else self.last_string_target
         if not r or (isinstance(r, Dict) and all([not r[x] for x in r])):
             logger.warning(f'not found any strings in {str_targets}')
-            return None
+            return None if only_return_one else r
+
         output = dict2sheet(r)
         output = '\n'.join(output)
         logger.info(f'\nfound strings in {str_targets}.\n{output}')

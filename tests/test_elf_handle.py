@@ -31,7 +31,7 @@ def test_string_search_batch():
     result = elf.search_string(b'buf')
     assert result == 0x400430  # direct return result on single request
 
-    result = elf.search_string(['buf', 'nptr'])
+    result = elf.search_string([b'buf', b'nptr'])
     assert b'buf' in result
     assert b'nptr' in result
     assert result[b'buf'] == 0x400430
