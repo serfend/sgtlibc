@@ -42,7 +42,15 @@ class GameBoxConfig:
         r = self.remote
         if not r:
             return None
-        host, port = r.split(':')
+        data = r.split(':')
+        if len(data) < 2:
+            data = r.split(' ')  # compatiable to space-char
+        if len(data) < 2:
+            raise Exception(f'invalid host , cant get port number :{r}')
+        if any([ord(x) > 57 or ord(x) < 48 for x in data[1]]):
+            raise Exception(
+                f'invalid host , cant convet port to number :{data[1]}')
+        host, port = data
         return (host, port)
 
     def __repr__(self) -> str:
