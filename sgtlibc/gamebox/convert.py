@@ -1,3 +1,4 @@
+import struct
 import pwn
 from .client import is_64_or_86
 
@@ -20,7 +21,10 @@ def fakeebp(specify_arch: int = None) -> bytes:
                 if none is set ,will use auto-by-elf else use p32/p64
     '''
     data = 0xdeadbeef
-    return pc(data=data, specify_arch=specify_arch)
+    result = pc(data=data, specify_arch=specify_arch)
+    # padding with reversed-data with '>I'pip 
+    result = result.replace(b'\x00'*4, struct.pack('>I', data)) 
+    return result
 
 
 def pc(data: bytes, specify_arch: int = None) -> bytes:
@@ -42,7 +46,7 @@ def p00(data: bytes, specify_arch: int = None) -> bytes:
     specify_arch:str `32`/`64`/None. 
                 if none is set ,will use auto-by-elf else use p32/p64
     '''
-    return pc(data = data, specify_arch = specify_arch)
+    return pc(data=data, specify_arch=specify_arch)
 
 
 def uc(data: bytes, specify_arch: int = None) -> int:
