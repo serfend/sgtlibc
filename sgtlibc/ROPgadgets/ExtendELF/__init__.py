@@ -14,14 +14,25 @@ from sgtpyutils.xls_txt import list2sheet, dict2sheet
 class ELF(pwn.ELF):
     def gadget_tostring(self, x: Gadget):
         detail = ';'.join(x.insns)
-        actions = '_'.join([r for r in x.regs])
+        # actions = '_'.join([r for r in x.regs])
         is_pop = True
-        if not actions:
-            actions = 'ret' if detail == 'ret' else 'unknown'
+        if not x.regs:
+            name = 'ret' if detail == 'ret' else 'unknown'
             is_pop = False
-        name = f'rop_pop_{actions}'
+            order = '50'
+        elif any(['add' in x for x in x.insns]):
+            is_pop = False
+            order = '10'
+            name = 'add_action'
+        else:
+            name = '_'.join(x.insns).replace('pop ', '')
+            name = f'rop_{name}'
+            if name.endswith('_ret'):
+                name = name[:-4]
+            order = '90'
         description = f'{name} = 0x{x.address:x} # {detail}'
-        return (actions, description, is_pop, x.address)
+        order += detail
+        return (name, description, is_pop, x.address, order)
 
     def get_rop(self, show_banner: bool = True):
         r = ['ELF::get_rop']
@@ -36,11 +47,14 @@ class ELF(pwn.ELF):
             r.append(f'# chains not found')
         g = rop.gadgets
         rop_pops = sorted([self.gadget_tostring(g[x])
-                          for x in g], key=lambda x: x[2])
+                          for x in g], key=lambda x: x[4])
         description = '\n'.join([x[1] for x in rop_pops])
         result = [[x[0], x[3]] for x in rop_pops]
         r.append(f'rop on pop_register:\n{description}')
         result = dict(result)
+        result_with_no_prefix = [[x[4:] if x.startswith(
+            'rop') else x, result[x]] for x in result]
+        result.update(result_with_no_prefix)
         self.rop = result
         if show_banner:
             r.append(banner.center(40, '#'))
