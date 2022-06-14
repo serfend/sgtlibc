@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 from __future__ import print_function
+import time
 
 from sgtlibc.utils.compat import deprecated
 from .. import logger
@@ -248,6 +249,10 @@ class LibcSearcher(object):
     def set_offset_direct(self, offset: int):
         logger.debug(f'set_offset: is set to:{hex(offset)}')
         self.offset = offset
+        check_sign = self.offset & 0xfff
+        if check_sign ^ 0:
+            logger.warning('offset\'s expected to be end with 0x000,current offset may NOT RIGHT.')
+            time.sleep(5)
 
     def check_dumped_function(self, target_function: str) -> bool:
         if not target_function in self.dump_result:
