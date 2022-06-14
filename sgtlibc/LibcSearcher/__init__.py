@@ -240,6 +240,11 @@ class LibcSearcher(object):
     def set_offset_by_function(self, target_function: str, elf_address: int):
         logger.debug(
             f'set offset by function:{target_function},address:{hex(elf_address)}')
+        check_sign = int(f'0x{hex(int(elf_address))[2:4]}', 16)
+        if check_sign ^ 0x7f:
+            logger.warning(
+                'function offset\'s expected to be start with 0x7f,current offset may NOT RIGHT.')
+
         if not self.check_dumped_function(target_function):
             return
         if elf_address == self.dump_result[target_function]:
@@ -251,7 +256,8 @@ class LibcSearcher(object):
         self.offset = offset
         check_sign = self.offset & 0xfff
         if check_sign ^ 0:
-            logger.warning('offset\'s expected to be end with 0x000,current offset may NOT RIGHT.')
+            logger.warning(
+                'offset\'s expected to be end with 0x000,current offset may NOT RIGHT.')
             time.sleep(5)
 
     def check_dumped_function(self, target_function: str) -> bool:
