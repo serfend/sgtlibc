@@ -2,6 +2,7 @@ from typing import List, overload
 from .client import check_client
 import pwn
 
+
 @overload
 def se(data_list: List):
     '''
@@ -154,8 +155,6 @@ def ru(delims: bytes, drop: bool = False, timeout: int = None):
     ...
 
 
-
-
 def interactive(prompt: str = pwn.term.text.bold_red('$') + ' '):
     """
     interactive(prompt = pwnlib.term.text.bold_red('$') + ' ')
@@ -176,10 +175,9 @@ def se(data: bytes):
     GameBox::control send data (NOT contains \n)
     data: what content to send , can be `str` or `bytes`
     '''
-    if isinstance(data, List):
-        return se(pwn.flat(data))
+    
     c = check_client()
-    return c.send(data)
+    return c.send(pwn.flat(data))
 
 
 def sa(delim: bytes, data: bytes, timeout: int = None):
@@ -189,13 +187,9 @@ def sa(delim: bytes, data: bytes, timeout: int = None):
     data: what content to send , can be `str` or `bytes`
     timeout: default is tube.default
     '''
-    if isinstance(delim, List):
-        return sa(pwn.flat(delim), data, timeout)
-    if isinstance(data, List):
-        return sa(delim, pwn.flat(data), timeout)
 
     c = check_client()
-    return c.sendafter(delim, data, timeout=timeout or c.default)
+    return c.sendafter(pwn.flat(delim), pwn.flat(data), timeout=timeout or c.default)
 
 
 def sl(data: bytes):
@@ -203,11 +197,9 @@ def sl(data: bytes):
     GameBox::control send data (contains \n)
     data: what content to send , can be `str` or `bytes`
     '''
-    if isinstance(data, List):
-        return sl(pwn.flat(data))
 
     c = check_client()
-    return c.sendline(data)
+    return c.sendline(pwn.flat(data))
 
 
 def sla(delim: bytes, data: bytes, timeout: int = None):
@@ -217,13 +209,8 @@ def sla(delim: bytes, data: bytes, timeout: int = None):
     data: what content to send , can be `str` or `bytes`
     timeout: default is tube.default
     '''
-    if isinstance(delim, List):
-        return sla(pwn.flat(delim), data, timeout)
-    if isinstance(data, List):
-        return sla(delim, pwn.flat(data), timeout)
-
     c = check_client()
-    return c.sendlineafter(delim, data, timeout=timeout or c.default)
+    return c.sendlineafter(pwn.flat(delim), pwn.flat(data), timeout=timeout or c.default)
 
 
 def sea(delim: bytes, data: bytes, timeout: int = None):
@@ -233,13 +220,9 @@ def sea(delim: bytes, data: bytes, timeout: int = None):
     data: what content to send , can be `str` or `bytes`
     timeout: default is tube.default
     '''
-    if isinstance(delim, List):
-        return sea(pwn.flat(delim), data, timeout)
-    if isinstance(data, List):
-        return sea(delim, pwn.flat(data), timeout)
 
     c = check_client()
-    return c.sendafter(delim, data, timeout=timeout or c.default)
+    return c.sendafter(pwn.flat(delim), pwn.flat(data), timeout=timeout or c.default)
 
 
 def rc(numb: int = 4096, timeout: int = None):
@@ -267,11 +250,9 @@ def ru(delims: bytes, drop: bool = False, timeout: int = None):
     drop: if set True , the ending content will be drop
     timeout: default is tube.default
     '''
-    if isinstance(delims, List):
-        return ru(pwn.flat(delims), drop, timeout)
 
     c = check_client()
-    return c.recvuntil(delims, drop=drop, timeout=timeout or c.default)
+    return c.recvuntil(pwn.flat(delims), drop=drop, timeout=timeout or c.default)
 
 
 def info_addr(tag: str, addr: int):
