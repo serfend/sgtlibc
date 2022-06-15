@@ -175,7 +175,7 @@ def se(data: bytes):
     GameBox::control send data (NOT contains \n)
     data: what content to send , can be `str` or `bytes`
     '''
-    
+
     c = check_client()
     return c.send(pwn.flat(data))
 
@@ -225,7 +225,7 @@ def sea(delim: bytes, data: bytes, timeout: int = None):
     return c.sendafter(pwn.flat(delim), pwn.flat(data), timeout=timeout or c.default)
 
 
-def rc(numb: int = 4096, timeout: int = None):
+def rc(numb: int = 4096, timeout: int = None) -> bytes:
     '''
     GameBox::control receive data with specified length of content
     data: what content to send , can be `str` or `bytes`
@@ -235,7 +235,7 @@ def rc(numb: int = 4096, timeout: int = None):
     return c.recv(numb, timeout=timeout or c.default)
 
 
-def rl(timeout: int = None):
+def rl(timeout: int = None) -> bytes:
     '''
     GameBox::control receive a line
     '''
