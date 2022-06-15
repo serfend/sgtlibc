@@ -15,7 +15,9 @@ class ELF(pwn.ELF):
     __name_map = {
         'ret': 'ret',
         'syscall;ret': 'syscall',
-        'syscall': 'syscall'
+        'syscall': 'syscall_ex',
+        'int 0x80;ret': 'int_80',
+        'int 0x80': 'int_80_ex',
     }
 
     def gadget_tostring(self, x: Gadget):
