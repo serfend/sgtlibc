@@ -12,12 +12,21 @@ from sgtpyutils.xls_txt import list2sheet, dict2sheet
 
 
 class ELF(pwn.ELF):
+    __name_map = {
+        'ret': 'ret',
+        'syscall;ret': 'syscall',
+        'syscall': 'syscall'
+    }
+
     def gadget_tostring(self, x: Gadget):
         detail = ';'.join(x.insns)
         # actions = '_'.join([r for r in x.regs])
         is_pop = True
         if not x.regs:
-            name = 'ret' if detail == 'ret' else 'unknown'
+            if detail in ELF.__name_map:
+                name = ELF.__name_map[detail]
+            else:
+                name = 'unknown'
             is_pop = False
             order = '50'
         elif any(['add' in x for x in x.insns]):
