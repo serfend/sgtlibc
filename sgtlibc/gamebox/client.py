@@ -5,7 +5,8 @@ from typing import Tuple
 import pwn
 import os
 import sys
-client: pwn.tube = None
+from .tube import tube
+client: tube = None
 is_local: bool = False
 tube_file: str = None
 tube_remote: Tuple = None
