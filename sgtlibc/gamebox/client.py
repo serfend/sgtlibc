@@ -13,6 +13,14 @@ tube_remote: Tuple = None
 elf: ELF = None
 
 
+def attach(gdbscript: str = None):
+    c = check_client()
+    pwn.gdb.attach(
+        target=c,
+        gdbscript=gdbscript,
+    )
+
+
 def is_64_or_86():
     global elf
     if not elf:
@@ -58,7 +66,7 @@ def check_client():
     if not client:
         start_game()
         if not client:
-            logger.error('client not available')
+            logger.error('client not available,please check your config')
             sys.exit(0)
     return client
 
