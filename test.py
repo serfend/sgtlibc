@@ -1,2 +1,2 @@
-import tests.test_search_result_offset
-tests.test_search_result_offset.test_simple_libc_main_with7fd()
+import tests.test_shell
+tests.test_shell.test_shellcode()
