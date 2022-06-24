@@ -1,4 +1,5 @@
 import struct
+from typing import Callable
 import pwn
 from .client import is_64_or_86
 
@@ -22,9 +23,43 @@ def fakeebp(specify_arch: int = None) -> bytes:
     '''
     data = 0xdeadbeef
     result = pc(data=data, specify_arch=specify_arch)
-    # padding with reversed-data with '>I'pip 
-    result = result.replace(b'\x00'*4, struct.pack('>I', data)) 
+    # padding with reversed-data with '>I'pip
+    result = result.replace(b'\x00'*4, struct.pack('>I', data))
     return result
+
+
+def flat(*args, preprocessor: Callable = None, length: int = None, filler: bytes = None, word_size: int = None, endianness: str = None, sign: bool = None) -> bytes:
+    '''
+    same as pwn.flat
+
+    Arguments:
+      args: Values to flatten
+      preprocessor (function): Gets called on every element to optionally
+         transform the element before flattening. If :const:`None` is
+         returned, then the original value is used.
+      length: The length of the output.
+      filler: Iterable to use for padding.
+      word_size (int): Word size of the converted integer.
+      endianness (str): Endianness of the converted integer ("little"/"big").
+      sign (bool): Signedness of the converted integer (False/True)
+    '''
+    kwargs = {}
+    if not preprocessor is None:
+        kwargs['preprocessor'] = preprocessor
+    if not length is None:
+        kwargs['length'] = length
+    if not filler is None:
+        kwargs['filler'] = filler
+    if not word_size is None:
+        kwargs['word_size'] = word_size
+    if not endianness is None:
+        kwargs['endianness'] = endianness
+    if not sign is None:
+        kwargs['sign'] = sign
+    return pwn.flat(
+        *args,
+        **kwargs
+    )
 
 
 def pc(data: bytes, specify_arch: int = None) -> bytes:

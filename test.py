@@ -1,2 +1,3 @@
-import tests.test_shell
-tests.test_shell.test_shellcode()
+import tests.test_convert
+tests.test_convert.test_flat64()
+
