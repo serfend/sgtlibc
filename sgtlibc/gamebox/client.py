@@ -49,6 +49,7 @@ def set_config(config: GameBoxConfig = None):
     global elf
     elf = config.elf
 
+    pwn.context.clear()
     pwn.context.log_level = config.log_level
     pwn.context.os = config.os
     pwn.context.arch = config.arch
@@ -80,10 +81,16 @@ def start_game(attach_to_client: bool = True):
     local = is_local
     if local:
         global tube_file
+        if not tube_file:
+            logger.warning('local elf-file havn\'t been set')
+            return None
         os.system(f'chmod 777 {tube_file}')
         r = pwn.process(tube_file)
     else:
         global tube_remote
+        if not tube_remote:
+            logger.warning('remote host havn\'t been set')
+            return None
         r = pwn.remote(tube_remote[0], tube_remote[1])
     if attach_to_client:
         global client
