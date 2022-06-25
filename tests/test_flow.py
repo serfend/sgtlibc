@@ -4,8 +4,8 @@ import sgtlibc
 
 def start_dump_normal(functions: List = None, filter: Callable = None):
     s = sgtlibc.Searcher()
-    s.add_condition('puts', 0xe10)
-    s.add_condition('read', 0x550)
+    s.add_condition('puts', 0xf7e10)
+    s.add_condition('read', 0xf7550)
     return s.dump(functions, filter=filter)
 
 

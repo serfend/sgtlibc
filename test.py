@@ -1,2 +1,2 @@
-import tests.test_extend_libc
-tests.test_extend_libc.test_use_user_libc()
+import tests.test_search_over
+tests.test_search_over.test_somany_libc()

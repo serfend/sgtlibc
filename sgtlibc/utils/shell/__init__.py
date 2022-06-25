@@ -1,4 +1,4 @@
-from .libs import shellcode64_syscall59, shellcode86_int80
+from .shellcodes import shellcode64_syscall59, shellcode86_int80
 import sgtlibc.gamebox
 import random
 

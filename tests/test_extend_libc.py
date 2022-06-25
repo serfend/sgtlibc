@@ -9,9 +9,9 @@ def test_use_user_libc():
     r = random.randint(int(1e7), int(1e8-1))
     p = f'.test.{r}.tmp'
     configuration.load(p)
-    lib_path = get_resources_by_path('libs')
+    lib_path = get_resources_by_path('libc_database')
     configuration.set('extension_database_path', lib_path)
-    s = LibcSearcher('puts', 0x007)
+    s = LibcSearcher('puts', 0xf7007)
     s.decided()
     result = s.db
     target = [x for x in result if x[1] == 'test.symbols']
