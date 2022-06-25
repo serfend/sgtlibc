@@ -2,7 +2,7 @@
 from typing import Dict, List, Tuple, overload
 import pwn
 from pwnlib.rop.gadgets import Gadget
-from ... import logger
+from sgtpyutils.logger import logger
 from sgtpyutils.xls_txt import list2sheet, dict2sheet
 # if you want direct run this script , comment above and uncomment following
 # class A:

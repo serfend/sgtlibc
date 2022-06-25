@@ -1,5 +1,6 @@
 from .LibcSearcher import LibcSearcher
-from . import __version__, logger
+from . import __version__
+from sgtpyutils.logger import logger
 import argparse
 
 
