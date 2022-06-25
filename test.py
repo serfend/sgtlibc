@@ -1,4 +1,2 @@
-import tests.test_convert
-tests.test_convert.test_flat64()
-tests.test_convert.test_flat()
-
+import tests.test_extend_libc
+tests.test_extend_libc.test_use_user_libc()

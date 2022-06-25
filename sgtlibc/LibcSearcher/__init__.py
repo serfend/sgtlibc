@@ -3,12 +3,13 @@ from __future__ import print_function
 import time
 
 from sgtlibc.utils.compat import deprecated
-from .. import logger
+from sgtpyutils.logger import logger
 import os
 import re
 import sys
 from typing import Callable, List, Tuple
 from sgtpyutils.xls_txt import dict2sheet, list2sheet
+import sgtpyutils.configuration as config
 
 
 class LibcSearcher(object):
@@ -22,25 +23,35 @@ class LibcSearcher(object):
         self.offset = None
         if func is not None and address is not None:
             self.add_condition(func, address)
-        self.libc_database_path = os.path.join(
+        database_path = os.path.join(
             os.path.realpath(os.path.dirname(__file__)), os.pardir, f"libc-database{os.sep}db{os.sep}")
-        self.libc_database_path = os.path.realpath(self.libc_database_path)
+        self.libc_database_path = [os.path.realpath(database_path)]
+        ext_data_path = config.get('extension_database_path', './ext_libs')
+        if not ext_data_path is None and os.path.isdir(ext_data_path):
+            logger.info(f'load user libc-database :{ext_data_path}')
+            self.libc_database_path.append(ext_data_path)
         self.__db = []
         self.current_focus_db = 0
         self.current_filter = None
         self.is_first_filter = True
         self.init_db()
 
+    def __get_db_path(self, db: Tuple) -> str:
+        return f'{self.libc_database_path[db[0]]}{os.sep}{db[1]}'
+
     def init_db(self):
-        db = self.libc_database_path
         self.files = []
         # only read "*.symbols" file to find
         symbol_re = re.compile('^.*symbols$')
-        for _, _, f in os.walk(db):
-            for i in f:
-                i = symbol_re.findall(i)
-                if i:
-                    self.files.append(i[0])
+
+        def load_single(index: int, db: str):
+            for _, _, f in os.walk(db):
+                for i in f:
+                    i = symbol_re.findall(i)
+                    if i:
+                        self.files.append([index, i[0]])
+        [load_single(index, db)
+         for index, db in enumerate(self.libc_database_path)]
 
     @property
     def db_result(self):
@@ -57,7 +68,7 @@ class LibcSearcher(object):
             logger.error("The address should be an int number")
             sys.exit()
         addr_last12 = address & 0xfff
-        content = f"[\s\S]*?{func}\s.*{addr_last12:x}[\s\S]*?"
+        content = f"(\r?\n|(?<!\n)\r|^){func}\s.*{addr_last12:03x}(?!\d| |\w\W)(\r?\n|(?<!\n)\r)"
         re_compile = re.compile(content)
         self.conditions[func] = address
         self.condition_reg[func] = re_compile
@@ -94,11 +105,11 @@ class LibcSearcher(object):
     def search_db(self):
         result = []
         for symbol_file in self.files:
-            with open(f'{self.libc_database_path}{os.sep}{symbol_file}', "rb") as fd:
+            with open(self.__get_db_path(symbol_file), "rb") as fd:
                 data = fd.read().decode(errors='ignore')
                 fitted_libc = True
                 for x in self.condition_reg:
-                    if not self.condition_reg[x].match(data):
+                    if next(self.condition_reg[x].finditer(data), None) is None:
                         fitted_libc = False
                         break
                 if fitted_libc:
@@ -108,22 +119,31 @@ class LibcSearcher(object):
     @property
     @deprecated("Use all_db([filter]) to get databases")
     def db(self):
-        import openpyxl
         return self.all_db()
 
     def all_db(self, filter: Callable = None):
+        '''
+        get all database searched from condition.
+        return Tuple[
+            lib_path_index:int libc-database-path-index,
+            db_name:str
+            ]
+        '''
         db_list = self.__db
+
         if not db_list:
             return []
         if not filter:
             def filter(x): return True
-        result = [x for x in db_list if filter(x)]
+        result = [x for x in db_list if filter(x[1])]
         filter_count = len(db_list) - len(result)
         if filter_count > 0:
             notice = f'{filter_count} db(s) is filtered by user-setting.'
             if self.is_first_filter:
                 self.is_first_filter = False
-                hidden = list(set(db_list).difference(set(result)))
+                db_names = [x[1] for x in db_list]
+                result_names = [x[1] for x in result]
+                hidden = list(set(db_names).difference(set(result_names)))
                 hidden = '\n'.join(list2sheet(hidden))
                 notice = f'{notice}\n{hidden}'
             logger.warning(notice)
@@ -147,9 +167,9 @@ class LibcSearcher(object):
         logger.info(f'{count} db(s) is found:\n{result}')
         return True, result, count
 
-    def pmore(self, result):
-        result = result[:-8]  # .strip(".symbols")
-        target = f'{self.libc_database_path}{os.sep}{result}.info'
+    def pmore(self, db: Tuple):
+        result = self.__get_db_path(db)[:-8]  # .strip(".symbols")
+        target = f'{result}.info'
         if os.path.exists(target):
             with open(target) as f:
                 info = f.read().strip()
@@ -184,21 +204,23 @@ class LibcSearcher(object):
                 max_show_count=max_show_count,
                 filter=filter
             )
+            # if no matched , return none
             if not self.__db_result[0]:
-                return False
+                return None
             db_list = self.all_db(filter=filter)
 
         if len(db_list) < db_index + 1:
             logger.error(
-                f'db[{db_index}] not exist.\n')
+                f'only have {len(db_list)} to select.index-{db_index} not exist.\n')
             self.list_db(
                 max_show_count=max_show_count,
                 filter=filter
             )
-            return
-        db_name = db_list[db_index]
-        logger.debug(f'dumping db[{db_index}]:{self.pmore(db_name)}')
-        db = f'{self.libc_database_path}{os.sep}{db_name}'
+            return None
+        db_item: Tuple = db_list[db_index]
+        db_name = db_item[1]
+        logger.debug(f'dumping db[{db_index}]:{self.pmore(db_item)}')
+        db: str = self.__get_db_path(db_item)
         with open(db, 'rb') as fd:
             data = fd.read().decode(errors='ignore').strip("\n").split("\n")
             if not func:

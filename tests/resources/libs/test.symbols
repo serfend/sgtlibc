@@ -1,0 +1,7 @@
+str_bin_sh = 001
+system = 002
+dup2 = 003
+read = 004
+write = 005
+puts = 007
+printf = 006
