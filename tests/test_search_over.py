@@ -15,5 +15,4 @@ def test_somany_libc():
     s.add_condition('puts', 0x0)
     result = s.dump()
     is_found, db_description, db_count = s.db_result
-    assert db_count > 1000, 'none condition should return all db'
-    assert len(db_description.split('\n')) < 10, 'some result should be hidden'
+    assert db_count == 0, 'none condition should return none db'
