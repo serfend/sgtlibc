@@ -71,7 +71,7 @@ class ELF(pwn.ELF):
             r.append(banner.center(40, '#'))
         logger.info('\n'.join(r))
         return result
-    StringDefault = [b'/bin/bash', b'bash', b'sh']
+    StringDefault = [b'/bin/bash', '/bin/sh', b'bash', b'sh']
 
     def show_symbols(self):
         def renderer(name: str):
