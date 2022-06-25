@@ -1,2 +1,2 @@
-import tests.test_search_over
-tests.test_search_over.test_somany_libc()
+import tests.test_search_result_offset
+tests.test_search_result_offset.test_search_reg()

@@ -68,8 +68,9 @@ class LibcSearcher(object):
             logger.error("The address should be an int number")
             sys.exit()
         addr_last12 = address & 0xfff
-        content = f"(\r?\n|(?<!\n)\r|^){func}\s.*{addr_last12:03x}(?!\d| |\w\W)(\r?\n|(?<!\n)\r)"
-        re_compile = re.compile(content)
+        content = f"^{func}\s.*{addr_last12:03x}(\s)*$"
+        re_compile = re.compile(
+            content, re.RegexFlag.MULTILINE | re.RegexFlag.IGNORECASE)
         self.conditions[func] = address
         self.condition_reg[func] = re_compile
 
