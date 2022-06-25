@@ -1,2 +1,2 @@
 from sgtpyutils.configuration import load
-load('.sgtlibc')
+load('.sgtlibc.conf')
