@@ -89,7 +89,8 @@ def do_symbols(libc_and_name: str):
         logger.error(f'invalid path:{libc_path}')
         return
     to_handle = []
-    if os.path.isdir(libc_path):
+    is_handle_directory = os.path.isdir(libc_path)
+    if is_handle_directory:
         to_handle = [x[2] for x in os.walk(libc_path)]  # get all files
         to_handle = [f'{libc_path}{os.sep}{x}' for x in flat(to_handle)]
         files_desc = '\n'.join(to_handle)
@@ -121,7 +122,7 @@ def do_symbols(libc_and_name: str):
         r = handle_single(elf_path_single)
         if r:
             save_paths.append(r)
-    if len(to_handle) > 1:
+    if is_handle_directory:
         return save_paths
     return None if len(save_paths) == 0 else save_paths[0]
 
