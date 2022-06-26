@@ -90,7 +90,7 @@ def do_symbols(libc_and_name: str):
         return
     to_handle = []
     if os.path.isdir(libc_path):
-        to_handle = [x[2] for x in os.walk(libc_path)] # get all files
+        to_handle = [f'{libc_path}{os.sep}{x[2]}' for x in os.walk(libc_path)] # get all files
         to_handle = flat(to_handle)
         files_desc = '\n'.join(to_handle)
         logger.info(
