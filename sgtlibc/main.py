@@ -90,14 +90,15 @@ def do_symbols(libc_and_name: str):
         return
     to_handle = []
     if os.path.isdir(libc_path):
-        to_handle = [f'{libc_path}{os.sep}{x[2]}' for x in os.walk(libc_path)] # get all files
-        to_handle = flat(to_handle)
+        to_handle = [x[2] for x in os.walk(libc_path)]  # get all files
+        to_handle = [f'{libc_path}{os.sep}{x}' for x in flat(to_handle)]
         files_desc = '\n'.join(to_handle)
         logger.info(
             f'{files_desc}\ntarget path {libc_path} is a directory,will handle {len(to_handle)} file(s)...')
         time.sleep(5)
     else:
         to_handle.append(libc_path)
+
     def handle_single(elf_path_single: str) -> str:
         description_exist = check_exist(
             elf_file_path=elf_path_single
