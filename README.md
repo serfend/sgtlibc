@@ -33,12 +33,13 @@ pip install sgtlibc
 ## Usage
 
 ```shell
-usage: main.py [-h] [-d [DUMP ...]] [-i [INDEX]] [-u [UPDATE]] [funcs_with_addresses]
+usage: sgtlibc [-h] [-d [DUMP ...]] [-i [INDEX]] [-s [SYMBOLS]] [-u [UPDATE]] [-v [VERSION]] [funcs_with_addresses]
 
-for search version of libc.you can use like:`sgtlibc puts:aa0+read:140 --dump system binsh` or in python , like : `py:import sgtlibc;s = sgtlibc.LibcSearcher();s.add_condition('puts',0xaa0)`
+a offline python-lib for search libc function.for search version of libc.you can use like:`sgtlibc puts:aa0+read:140 --dump system binsh` or in python , like : `py:import sgtlibc;s =
+sgtlibc.LibcSearcher();s.add_condition('puts',0xaa0)`
 
 positional arguments:
-  funcs_with_addresses  specify `func-name` and `func address` , split by `|`,eg: puts:aa0+read:140 , its means func-put's address = 0xaa0;func-read addr = 0x140 (default: None).
+  funcs_with_addresses  specify `func-name` and `func address` , split by `|`,eg: puts:aa0+read:140 , its means func-puts address = 0xaa0;func-read address = 0x140 (default: None).
 
 options:
   -h, --help            show this help message and exit
@@ -46,8 +47,12 @@ options:
                         select funcs to dump its info (default: ['__libc_start_main_ret', 'system', 'dup2', 'read', 'write', 'str_bin_sh']).
   -i [INDEX], --index [INDEX]
                         db index on multi-database found occation (default: 0).
+  -s [SYMBOLS], --symbols [SYMBOLS]
+                        convert libc-elf file to symbols-file,use `libc_path [alias]` to convert.
   -u [UPDATE], --update [UPDATE]
                         update current libc database from internet , need non-microsoft-windows environment (default: False).
+  -v [VERSION], --version [VERSION]
+                        show version
 ```
 
 
@@ -119,10 +124,10 @@ binsh_addr = p00(s.get_address(sgtlibc.s_binsh))
 
 ### use user-libc database
 
+> search libc from user-directory
+
 ```python
 from sgtlibc.utils import configuration as config
-
-
 def test_use_user_libc():
     lib_path = './libs' # here input your libc directory
     config.set(config.extension_database_path, lib_path)
@@ -131,6 +136,21 @@ def test_use_user_libc():
 ```
 
 
+
+### add user-libc database
+
+> add a libc.so file to database
+
+```bash
+sgtlibc -s ./libc.from_user.so:alias_input_here
+```
+
+or
+
+```python
+from sgtlibc.main import do_symbols
+do_symbols(f'./libc.from_user.so:alias_input_here')
+```
 
 ## CTF Problem Solve DEMO
 
