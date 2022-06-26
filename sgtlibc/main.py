@@ -80,7 +80,8 @@ def do_symbols(libc_and_name: str):
         libc_path = data[0]
         libc_alias = data[1]
     else:
-        libc_path = libc_alias = data[0]
+        libc_path = data[0]
+        libc_alias = None
     from .libc_database.libc_handle import run, check_exist
     database_path = configuration.get(configuration.extension_database_path)
     if not os.path.exists(libc_path):
@@ -88,10 +89,10 @@ def do_symbols(libc_and_name: str):
         return
     to_handle = []
     if os.path.isdir(libc_path):
-        to_handle = [x[0] for x in os.walk('.')] # get all files
+        to_handle = [x[0] for x in os.walk(libc_path)] # get all files
         files_desc = '\n'.join(to_handle)
         logger.info(
-            f'{files_desc}\ntarget path is a directory,will handle {len(to_handle)} file(s)...')
+            f'{files_desc}\ntarget path {libc_path} is a directory,will handle {len(to_handle)} file(s)...')
         time.sleep(5)
     else:
         to_handle.append(libc_path)
