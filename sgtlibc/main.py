@@ -6,6 +6,7 @@ from sgtlibc.utils import configuration
 from .LibcSearcher import LibcSearcher
 from . import __version__
 from sgtpyutils.logger import logger
+from sgtpyutils.extensions import flat
 import argparse
 
 
@@ -89,7 +90,8 @@ def do_symbols(libc_and_name: str):
         return
     to_handle = []
     if os.path.isdir(libc_path):
-        to_handle = [x[0] for x in os.walk(libc_path)] # get all files
+        to_handle = [x[2] for x in os.walk(libc_path)] # get all files
+        to_handle = flat(to_handle)
         files_desc = '\n'.join(to_handle)
         logger.info(
             f'{files_desc}\ntarget path {libc_path} is a directory,will handle {len(to_handle)} file(s)...')
