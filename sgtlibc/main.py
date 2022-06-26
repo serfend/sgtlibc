@@ -1,3 +1,5 @@
+import os
+import time
 from typing import List
 
 from sgtlibc.utils import configuration
@@ -79,23 +81,45 @@ def do_symbols(libc_and_name: str):
         libc_alias = data[1]
     else:
         libc_path = libc_alias = data[0]
-    from .libc_database.libc_handle import run,check_exist
+    from .libc_database.libc_handle import run, check_exist
     database_path = configuration.get(configuration.extension_database_path)
-    
-    description_exist = check_exist(
-        elf_file_path=libc_path
-    )
-    if not description_exist is None:
-        logger.debug(f'this libc found in previous database:\n{description_exist}')
+    if not os.path.exists(libc_path):
+        logger.error(f'invalid path:{libc_path}')
         return
-    logger.info('this is a new elf-file,move to user-lib')
-    save_path = run(
-        elf_file_path=libc_path,
-        output_path=database_path,
-        alias=libc_alias
-    )
-    logger.info(f'libc been saved to : {save_path}')
-    return save_path
+    to_handle = []
+    if os.path.isdir(libc_path):
+        to_handle = [x[0] for x in os.walk('.')] # get all files
+        files_desc = '\n'.join(to_handle)
+        logger.info(
+            f'{files_desc}\ntarget path is a directory,will handle {len(to_handle)} file(s)...')
+        time.sleep(5)
+    else:
+        to_handle.append(libc_path)
+    def handle_single(elf_path_single: str) -> str:
+        description_exist = check_exist(
+            elf_file_path=elf_path_single
+        )
+        if not description_exist is None:
+            logger.debug(
+                f'this libc found in previous database:\n{description_exist}')
+            return
+        logger.info('this is a new elf-file,move to user-lib')
+        save_path = run(
+            elf_file_path=elf_path_single,
+            output_path=database_path,
+            alias=libc_alias
+        )
+        logger.info(f'libc been saved to : {save_path}')
+        return save_path
+
+    save_paths = []
+    for elf_path_single in to_handle:
+        r = handle_single(elf_path_single)
+        if r:
+            save_paths.append(r)
+    if len(to_handle) > 1:
+        return save_paths
+    return None if len(save_paths) == 0 else save_paths[0]
 
 
 def do_dump(searcher: LibcSearcher, funcs_with_addresses: str, dump: List, index: int):

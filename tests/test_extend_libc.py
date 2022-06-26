@@ -43,3 +43,12 @@ def test_add_user_libc():
     os.remove(f'{path}.info')
     
 
+@pytest.mark.skipif(platform.uname()[0] == 'Windows', reason='skip windows')
+def test_add_user_libc_directory():
+    init_libc_database()
+    elf_libc_file = get_resources_by_path(f'libc')
+    path = do_symbols(f'{elf_libc_file}:test_libc_elf_file')[0]
+    assert path
+
+    os.remove(f'{path}.symbols')
+    os.remove(f'{path}.info')

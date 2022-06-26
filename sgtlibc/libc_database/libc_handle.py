@@ -80,7 +80,7 @@ def save(output_path: str, data: str, alias: str = None):
     path = f'{file_path}{os.sep}{file_name_or_dir_name}'
     if not os.path.exists(path):
         os.makedirs(path)
-        
+
     if should_append_file_name:
         import datetime
         n = datetime.datetime.now().strftime('%Y%m%d%H%M%S')
@@ -131,6 +131,8 @@ def check_exist(elf_file_path: str) -> bool:
 
 
 def run(elf_file_path: str, output_path: str = None, alias: str = None):
+    if alias is None:
+        alias = 'user'
     elf_version = get_elf_version(elf_file_path)
     print(
         f'lic_converter:\nelf_version:{elf_version}\nelf_file_path:{elf_file_path}\noutput_path:{output_path}\nalias:{alias}')
