@@ -1,4 +1,3 @@
-from .shellcodes import shellcode64_syscall59, shellcode86_int80
 import sgtlibc.gamebox
 import random
 
@@ -27,11 +26,29 @@ def shellcode86() -> bytes:
     return shellcode(is_x86_or_64=True)
 
 
+def shellcode86_short() -> bytes:
+    '''
+    return a linux shellcode with length 17 bytes
+    get a simple shellcode run by /bin/sh and int80
+    '''
+    from .shellcodes import shellcode86_int80_17b
+    return shellcode86_int80_17b.shellcode
+
+
 def shellcode64() -> bytes:
     '''
     get a simple shellcode run by /bin/sh and int59
     '''
     return shellcode(is_x86_or_64=False)
+
+
+def shellcode64_short() -> bytes:
+    '''
+    return a linux shellcode with length 21 bytes
+    get a simple shellcode run by /bin/sh and int59
+    '''
+    from .shellcodes import shellcode64_syscall59_21b
+    return shellcode64_syscall59_21b.shellcode
 
 
 def shellcode(is_x86_or_64: bool = True) -> bytes:
@@ -40,5 +57,7 @@ def shellcode(is_x86_or_64: bool = True) -> bytes:
     is_x86_or_64: bool : if True return x86
     '''
     if is_x86_or_64:
+        from .shellcodes import shellcode86_int80
         return shellcode86_int80.shellcode
+    from .shellcodes import shellcode64_syscall59
     return shellcode64_syscall59.shellcode
