@@ -9,7 +9,7 @@ import re
 import sys
 from typing import Callable, List, Tuple
 from sgtpyutils.xls_txt import dict2sheet, list2sheet
-import sgtpyutils.configuration as config
+from ..utils import configuration as config
 
 
 class LibcSearcher(object):
@@ -26,7 +26,7 @@ class LibcSearcher(object):
         database_path = os.path.join(
             os.path.realpath(os.path.dirname(__file__)), os.pardir, f"libc-database{os.sep}db{os.sep}")
         self.libc_database_path = [os.path.realpath(database_path)]
-        ext_data_path = config.get('extension_database_path', './ext_libs')
+        ext_data_path = config.get(config.extension_database_path, './ext_libs')
         if not ext_data_path is None and os.path.isdir(ext_data_path):
             logger.info(f'load user libc-database :{ext_data_path}')
             self.libc_database_path.append(ext_data_path)
@@ -86,10 +86,12 @@ class LibcSearcher(object):
 
         self.list_conditions()
         self.search_db()
-        return self.list_db(
+        r = self.list_db(
             max_show_count=max_show_count,
             filter=filter
         )
+        self.__db_result = r
+        return r
 
     def list_conditions(self):
         result_header = {

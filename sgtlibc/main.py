@@ -1,3 +1,6 @@
+from typing import List
+
+from sgtlibc.utils import configuration
 from .LibcSearcher import LibcSearcher
 from . import __version__
 from sgtpyutils.logger import logger
@@ -40,6 +43,15 @@ def build_parser():
         dest='index',
         help='db index on multi-database found occation (default: %(default)s).',
     )
+
+    parser.add_argument(
+        '-s',
+        '--symbols',
+        default=False,
+        nargs=argparse.OPTIONAL,
+        dest='symbols',
+        help='convert libc-elf file to symbols-file,use `libc_path [alias]` to convert.',
+    )
     parser.add_argument(
         '-u',
         '--update',
@@ -54,24 +66,39 @@ def build_parser():
         default=False,
         nargs=argparse.OPTIONAL,
         dest='version',
-        help='show version (default: %(default)s).',
+        help='show version',
     )
     args = parser.parse_args()
     return args
 
 
-def run():
-    global usage
-    searcher = LibcSearcher()
-    args = build_parser()
-    if args.update or args.update == None:
-        return update_database()
-    if args.version or args.version == None:
-        logger.info(__version__.__version__)
+def do_symbols(libc_and_name: str):
+    data = libc_and_name.split(':')
+    if len(data) > 1:
+        libc_path = data[0]
+        libc_alias = data[1]
+    else:
+        libc_path = libc_alias = data[0]
+    from .libc_database.libc_handle import run,check_exist
+    database_path = configuration.get(configuration.extension_database_path)
+    
+    description_exist = check_exist(
+        elf_file_path=libc_path
+    )
+    if not description_exist is None:
+        logger.debug(f'this libc found in previous database:\n{description_exist}')
         return
-    funcs_with_addresses = args.funcs_with_addresses
-    dump = args.dump
-    index = args.index
+    logger.info('this is a new elf-file,move to user-lib')
+    save_path = run(
+        elf_file_path=libc_path,
+        output_path=database_path,
+        alias=libc_alias
+    )
+    logger.info(f'libc been saved to : {save_path}')
+    return save_path
+
+
+def do_dump(searcher: LibcSearcher, funcs_with_addresses: str, dump: List, index: int):
     if not funcs_with_addresses:
         funcs_with_addresses = ''
     funcs_with_addresses = funcs_with_addresses.split('+')
@@ -95,6 +122,27 @@ def run():
         logger.error(f'no func-addr pair is specify , please do as:{usage}')
         return
     searcher.dump(dump, index)
+
+
+def run():
+    global usage
+    searcher = LibcSearcher()
+    args = build_parser()
+    if args.update or args.update == None:
+        return update_database()
+    if args.version or args.version == None:
+        logger.info(__version__.__version__)
+        return
+    if args.symbols:
+        return do_symbols(
+            libc_and_name=args.symbols
+        )
+    return do_dump(
+        searcher=searcher,
+        funcs_with_addresses=args.funcs_with_addresses,
+        dump=args.dump,
+        index=args.index,
+    )
 
 
 if __name__ == '__main__':

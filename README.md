@@ -120,12 +120,12 @@ binsh_addr = p00(s.get_address(sgtlibc.s_binsh))
 ### use user-libc database
 
 ```python
-from sgtpyutils import configuration
+from sgtlibc.utils import configuration as config
 
 
 def test_use_user_libc():
     lib_path = './libs' # here input your libc directory
-    configuration.set('extension_database_path', lib_path)
+    config.set(config.extension_database_path, lib_path)
     s = LibcSearcher('puts', 0xf7007)
     s.decided()
 ```
