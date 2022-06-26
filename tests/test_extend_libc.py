@@ -4,6 +4,8 @@ from sgtlibc.utils import configuration as config
 from .common import get_resources_by_path
 from sgtlibc.LibcSearcher import LibcSearcher
 from sgtlibc.main import do_symbols
+import pytest
+import platform
 
 def init_libc_database():
     r = random.randint(int(1e7), int(1e8-1))
@@ -12,6 +14,7 @@ def init_libc_database():
     lib_path = get_resources_by_path('libc_database')
     config.set(config.extension_database_path, lib_path)
 
+@pytest.mark.skipif(platform.uname()[0] == 'Windows', reason='skip windows')
 def test_use_user_libc():
     init_libc_database()
     s = LibcSearcher('puts', 0xf7007)
@@ -24,6 +27,7 @@ def test_use_user_libc():
     assert 'This_Is_A_Test_Libc_Name' in info
     os.remove(config.get_config_path())
 
+@pytest.mark.skipif(platform.uname()[0] == 'Windows', reason='skip windows')
 def test_add_user_libc():
     init_libc_database()
     elf_libc_file = get_resources_by_path(f'libc{os.sep}libc.so.6')
