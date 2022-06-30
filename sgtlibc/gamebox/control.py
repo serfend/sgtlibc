@@ -136,7 +136,7 @@ def sea(delim: bytes, data: bytes, timeout: int = None):
 
 
 @overload
-def ru(delims_list: List, drop: bool = False, timeout: int = None):
+def ru(delims_list: List, drop: bool = False, timeout: int = None) -> bytes:
     '''
     you can direct use ru(['/bin/bash',addr]) instead of ri(p00(b'/bin/sh') + p00(addr))
     equal to ru(flat(delim_list),drop,timeout)
@@ -145,7 +145,7 @@ def ru(delims_list: List, drop: bool = False, timeout: int = None):
 
 
 @overload
-def ru(delims: bytes, drop: bool = False, timeout: int = None):
+def ru(delims: bytes, drop: bool = False, timeout: int = None) -> bytes:
     '''
     GameBox::control receive data until `delims` comes
     delims: can use str or bytes , for what to watting for
@@ -155,9 +155,9 @@ def ru(delims: bytes, drop: bool = False, timeout: int = None):
     ...
 
 
-def interactive(prompt: str = pwn.term.text.bold_red('$') + ' '):
+def interactive(prompt: str = pwn.term.text.bold_red('pwn$') + ' '):
     """
-    interactive(prompt = pwnlib.term.text.bold_red('$') + ' ')
+    interactive(prompt = pwnlib.term.text.bold_red('pwn$') + ' ')
 
     Does simultaneous reading and writing to the tube. In principle this just
     connects the tube to standard in and standard out, but in practice this
@@ -167,7 +167,9 @@ def interactive(prompt: str = pwn.term.text.bold_red('$') + ' '):
     Thus it only works in while in :data:`pwnlib.term.term_mode`.
     """
     c = check_client()
-    return c.interactive(prompt)
+    return c.interactive(
+        prompt=prompt
+    )
 
 
 def se(data: bytes):
@@ -243,7 +245,7 @@ def rl(timeout: int = None) -> bytes:
     return c.recvline(timeout or c.default)
 
 
-def ru(delims: bytes, drop: bool = False, timeout: int = None):
+def ru(delims: bytes, drop: bool = False, timeout: int = None) -> bytes:
     '''
     GameBox::control receive data until `delims` comes
     delims: can use str or bytes , for what to watting for
