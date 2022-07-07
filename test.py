@@ -1,2 +1,2 @@
-import tests.test_search_result_offset
-tests.test_search_result_offset.test_search_reg()
+import tests.test_extend_libc
+tests.test_extend_libc.test_add_user_libc()
