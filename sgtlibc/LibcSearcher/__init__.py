@@ -266,9 +266,10 @@ class LibcSearcher(object):
         logger.debug(
             f'set offset by function:{target_function},address:{hex(elf_address)}')
         check_sign = int(f'0x{hex(int(elf_address))[2:4]}', 16)
-        if check_sign ^ 0xf7:
+        x64start = 0x7f
+        if check_sign ^ x64start:
             logger.warning(
-                'function offset\'s expected to be start with 0xf7,current offset may NOT RIGHT.')
+                f'function offset\'s expected to be start with {x64start},current offset may NOT RIGHT.')
 
         if not self.check_dumped_function(target_function):
             return
