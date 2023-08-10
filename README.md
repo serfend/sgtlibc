@@ -1,7 +1,7 @@
 
 
 <p align="center">
-    <a href="https://github.com/serfend/sgtlibc/"><img alt="pypi version" src="https://visitor-badge.glitch.me/badge?page_id=serfend/sgtlibc&left_text=views" /></a> 
+    <a href="https://visitorbadge.io/status?path=https%3A%2F%2Fgithub.com%2Fserfend%2Fsgtlibc%2F"><img src="https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2Fserfend%2Fsgtlibc%2F&labelColor=%23697689&countColor=%23ff8a65&style=plastic&labelStyle=none" /></a>
     <a href="https://pypi.python.org/pypi/sgtlibc/"><img alt="pypi version" src="https://img.shields.io/pypi/v/sgtlibc.svg" /></a> 
     <a href="https://pypistats.org/packages/sgtlibc"><img alt="pypi download" src="https://img.shields.io/pypi/dm/sgtlibc.svg" /></a>
     <a href="https://github.com/serfend/sgtlibc/releases"><img alt="GitHub release" src="https://img.shields.io/github/release/serfend/sgtlibc.svg?style=flat-square" /></a>
